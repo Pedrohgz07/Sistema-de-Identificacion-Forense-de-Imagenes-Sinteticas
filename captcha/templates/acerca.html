@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Acerca de — SIFIS</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/inicio.css">
+  <link rel="stylesheet" href="/static/css/acerca.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="brand-group">
+      <img src="/static/img/logoEmpresa.png" alt="AM Dev Solutions" class="logo-empresa">
+      <span class="brand">SIFIS</span>
+    </div>
+<ul class="nav-links">
+  <li><a href="/" class="nav-link">Inicio</a></li>
+  <li><a href="/como-funciona" class="nav-link">Cómo funciona</a></li>
+  <li><a href="/acerca" class="nav-link activo">Acerca de</a></li>
+</ul>
+  </nav>
+
+  <!-- HERO OSCURO -->
+  <section class="ac-hero">
+    <div class="ac-hero-inner">
+      <div class="badge badge-hero">
+        <img src="/static/img/cerebro-humano.png" alt="">
+        <span>Proyecto académico</span>
+      </div>
+      <h1>Acerca de SIFIS</h1>
+      <p>Sistema de Identificación Forense de Imágenes Sintéticas generadas por IA mediante Algoritmos de Aprendizaje.</p>
+    </div>
+  </section>
+
+  <div class="pagina-container">
+
+    <!-- DESCRIPCIÓN + INSTITUCIÓN -->
+    <section class="acerca-grid">
+
+      <div class="acerca-card">
+        <div class="card-eyebrow">El proyecto</div>
+        <h2>¿Qué es SIFIS?</h2>
+        <p>SIFIS es un sistema web de identificación forense desarrollado para determinar si una imagen digital fue generada por Inteligencia Artificial. Ante el avance acelerado de los modelos generativos como GAN y algoritmos de difusión, que producen imágenes con un realismo difícil de distinguir a simple vista, se hace necesaria una herramienta accesible que apoye la verificación de contenido digital en entornos educativos e institucionales.</p>
+        <p>El sistema implementa una Red Neuronal Convolucional (CNN) basada en Transfer Learning con EfficientNet-B0 para la clasificación binaria de imágenes reales y generadas por IA, entrenada sobre el dataset <strong>140K Real and Fake Faces</strong> de Kaggle. La evaluación del modelo emplea métricas como Accuracy, AUC, ROC Curve, Precision, Recall y F1-Score.</p>
+        <div class="acerca-chips">
+          <span class="chip">Forense digital</span>
+          <span class="chip">Inteligencia Artificial</span>
+          <span class="chip">Visión artificial</span>
+        </div>
+      </div>
+
+      <div class="inst-card">
+        <div class="inst-icono">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 3L2 8l10 5 10-5-10-5z"/>
+            <path d="M2 16l10 5 10-5"/>
+            <path d="M2 12l10 5 10-5"/>
+          </svg>
+        </div>
+        <div class="inst-nombre">Universidad Tecnológica de la Huasteca Hidalguense</div>
+        <div class="inst-detalle">UTHH — Huejutla de Reyes, Hidalgo</div>
+        <div class="inst-divider"></div>
+        <div class="inst-programa">TSU en Desarrollo de Software Multiplataforma</div>
+        <div class="inst-periodo">Estadía profesional · Mayo – Agosto 2026</div>
+      </div>
+
+    </section>
+
+    <!-- TECNOLOGÍAS -->
+    <section class="tech-section">
+      <div class="seccion-header">
+        <h2>Tecnologías utilizadas</h2>
+        <p>Stack tecnológico seleccionado para el entrenamiento, evaluación y despliegue del modelo de detección.</p>
+      </div>
+
+      <div class="tech-grid">
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/python.png" alt="Python"></div>
+          <span class="tech-nombre">Python 3</span>
+          <span class="tech-desc">Lenguaje principal para el desarrollo, entrenamiento y evaluación del modelo</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/tensorflow.svg" alt="TensorFlow"></div>
+          <span class="tech-nombre">TensorFlow 2.x</span>
+          <span class="tech-desc">Framework de aprendizaje profundo para construir, entrenar y desplegar la red neuronal</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/keras.png" alt="Keras"></div>
+          <span class="tech-nombre">Keras</span>
+          <span class="tech-desc">API de alto nivel integrada en TensorFlow para diseñar la arquitectura del modelo</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/red-neuronal.png" alt="EfficientNet-B0"></div>
+          <span class="tech-nombre">EfficientNet-B0</span>
+          <span class="tech-desc">CNN con Transfer Learning (ImageNet) — extractor de características con bajo costo computacional</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/transfer-learning.png" alt="Transfer Learning"></div>
+          <span class="tech-nombre">Transfer Learning</span>
+          <span class="tech-desc">Reutilización de pesos preentrenados en ImageNet para reducir tiempo de entrenamiento</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/fine-tuning.png" alt="Fine-Tuning"></div>
+          <span class="tech-nombre">Fine-Tuning</span>
+          <span class="tech-desc">Descongelamiento de las últimas 30 capas para especializar la red en detección de IA</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/data-augmentation.png" alt="Data Augmentation"></div>
+          <span class="tech-nombre">Data Augmentation</span>
+          <span class="tech-desc">RandomFlip, RandomRotation y RandomZoom para reducir sobreajuste (overfitting)</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/adam-optimizer.png" alt="Adam Optimizer"></div>
+          <span class="tech-nombre">Adam Optimizer</span>
+          <span class="tech-desc">Optimizador con dos fases de aprendizaje: lr 0.001 → 0.00001 en fine-tuning</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/scikit-learn.png" alt="scikit-learn"></div>
+          <span class="tech-nombre">scikit-learn</span>
+          <span class="tech-desc">Métricas de evaluación: Accuracy, AUC, ROC Curve, Precision, Recall, F1-Score</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/numpy.png" alt="NumPy"></div>
+          <span class="tech-nombre">NumPy</span>
+          <span class="tech-desc">Manipulación de arreglos y operaciones matemáticas sobre imágenes</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/matplotlib.png" alt="Matplotlib"></div>
+          <span class="tech-nombre">Matplotlib</span>
+          <span class="tech-desc">Visualización de curvas de entrenamiento, ROC y matriz de confusión</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/kaggle.png" alt="Kaggle"></div>
+          <span class="tech-nombre">140K Real &amp; Fake Faces</span>
+          <span class="tech-desc">Dataset de Kaggle con 140,000 rostros reales y generados por IA para entrenamiento</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/tf-dataset-api.png" alt="TF Dataset API"></div>
+          <span class="tech-nombre">TensorFlow Dataset API</span>
+          <span class="tech-desc">Carga eficiente por lotes (batch) con prefetch automático para optimizar GPU</span>
+        </div>
+
+        <div class="tech-item">
+          <div class="tech-logo-wrap"><img src="/static/img/nvidia.png" alt="NVIDIA"></div>
+          <span class="tech-nombre">GPU NVIDIA (Kaggle)</span>
+          <span class="tech-desc">Aceleración CUDA para el entrenamiento — TensorFlow detecta la GPU automáticamente</span>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ══════ FOOTER ══════ -->
+  <footer class="footer-sifis">
+    <div class="footer-inner">
+
+      <div class="footer-col">
+        <div class="footer-brand">
+          <img src="/static/img/logoEmpresa.png" alt="AM Dev Solutions" class="logo-empresa">
+          <span>SIFIS</span>
+        </div>
+        <p>
+          Sistema de Identificación Forense de Imágenes Sintéticas, desarrollado
+          como proyecto de estadía profesional para la verificación de contenido
+          digital generado por Inteligencia Artificial.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Navegación</h4>
+        <a href="/">Inicio</a>
+        <a href="/como-funciona">Cómo funciona</a>
+        <a href="/acerca">Acerca de</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Institución</h4>
+        <p>Universidad Tecnológica de la Huasteca Hidalguense</p>
+        <p>Huejutla de Reyes, Hidalgo · México</p>
+        <p>Estadía profesional · 2026</p>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      © 2026 SIFIS · Proyecto académico desarrollado con <span>Python, Flask &amp; OpenCV</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,303 @@
+/* ════════════════════════════════════════
+   SIFIS · como-funciona.css — Glassmorphism Edition
+   ════════════════════════════════════════ */
+
+/* ── HERO ── */
+.cf-hero {
+  background: linear-gradient(135deg, #0D2440 0%, #1A3A5C 60%, #1A6FCC 100%);
+  padding: 80px 0 70px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.cf-hero::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:
+    radial-gradient(circle at 25% 25%, rgba(106,170,224,.25), transparent 45%),
+    radial-gradient(circle at 75% 75%, rgba(26,111,204,.30), transparent 50%);
+}
+
+.cf-hero-inner {
+  width: 82%;
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.badge-hero {
+  background: rgba(255,255,255,.12);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255,255,255,.25);
+  color: #ffffff;
+  margin-bottom: 24px;
+}
+
+.badge-hero img { filter: brightness(0) invert(1); }
+
+.cf-hero h1 {
+  font-size: clamp(30px, 4.5vw, 44px);
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 16px;
+  letter-spacing: -.02em;
+  line-height: 1.25;
+}
+
+.cf-hero p {
+  font-size: 15px;
+  color: rgba(255,255,255,.78);
+  max-width: 540px;
+  margin: 0 auto 40px;
+  line-height: 1.8;
+}
+
+.cf-hero-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 36px;
+}
+
+.stat { text-align: center; }
+
+.stat-num {
+  display: block;
+  font-size: 30px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -.02em;
+}
+
+.stat-label {
+  display: block;
+  font-size: 12px;
+  color: rgba(255,255,255,.6);
+  margin-top: 2px;
+}
+
+.stat-div {
+  width: 1px;
+  height: 42px;
+  background: rgba(255,255,255,.2);
+}
+
+/* ── CONTENEDOR ── */
+.pagina-container {
+  width: 82%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 70px 0 60px;
+}
+
+/* ── PASOS ── */
+.pasos-section { margin-bottom: 80px; }
+
+.pasos-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+.pasos-header h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--azul-oscuro);
+  margin-bottom: 8px;
+}
+
+.pasos-header p {
+  font-size: 13px;
+  color: var(--texto-grad);
+}
+
+.pasos-timeline { display: flex; flex-direction: column; }
+
+.paso-cf {
+  display: flex;
+  gap: 0;
+}
+
+.paso-cf-lado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 64px;
+  flex-shrink: 0;
+}
+
+.paso-cf-num {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--azul-brillante), var(--azul-claro));
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 800;
+  flex-shrink: 0;
+  z-index: 1;
+  box-shadow: 0 0 0 6px rgba(216,232,245,.6), 0 6px 20px rgba(26,111,204,.35);
+}
+
+.paso-cf-linea {
+  width: 2px;
+  flex: 1;
+  background: linear-gradient(to bottom, var(--azul-brillante), transparent);
+  margin: 8px 0;
+  min-height: 36px;
+}
+
+.paso-cf-contenido {
+  flex: 1;
+  padding: 0 0 40px 28px;
+}
+
+.paso-cf-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  padding: 30px 34px;
+  transition: .3s;
+  box-shadow: 0 8px 30px rgba(13,36,64,.05);
+}
+
+.paso-cf-card:hover {
+  border-color: var(--azul-brillante);
+  box-shadow: 0 14px 40px rgba(26,111,204,.14);
+  transform: translateY(-3px);
+}
+
+.paso-cf-card h2 {
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--azul-oscuro);
+  margin-bottom: 10px;
+}
+
+.paso-cf-card p {
+  font-size: 13.5px;
+  color: var(--texto-grad);
+  line-height: 1.85;
+  margin-bottom: 16px;
+}
+
+.tags-lista { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.tag {
+  background: rgba(26,111,204,.10);
+  border: 1px solid var(--glass-border);
+  color: #1A4A80;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 5px 14px;
+  border-radius: 999px;
+}
+
+/* ── TÉCNICAS ── */
+.tecnicas-section { text-align: center; }
+
+.tecnicas-header { margin-bottom: 40px; }
+
+.tecnicas-header h2 {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--azul-oscuro);
+  margin-bottom: 8px;
+}
+
+.tecnicas-header p { font-size: 13px; color: var(--texto-grad); }
+
+.tecnicas-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.tecnica-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: 22px;
+  padding: 34px 26px;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+  transition: .3s;
+  box-shadow: 0 8px 30px rgba(13,36,64,.05);
+}
+
+.tecnica-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--azul-brillante), var(--azul-claro));
+  opacity: 0;
+  transition: .25s;
+}
+
+.tecnica-card:hover {
+  border-color: var(--azul-claro);
+  box-shadow: 0 16px 42px rgba(26,111,204,.14);
+  transform: translateY(-5px);
+}
+
+.tecnica-card:hover::before { opacity: 1; }
+
+.tecnica-num {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--azul-brillante);
+  letter-spacing: .12em;
+  margin-bottom: 18px;
+  opacity: .7;
+}
+
+.tecnica-icono {
+  width: 56px;
+  height: 56px;
+  background: rgba(26,111,204,.10);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+
+.tecnica-icono img { width: 28px; height: 28px; }
+
+.tecnica-card h3 {
+  font-size: 15.5px;
+  font-weight: 800;
+  color: var(--azul-oscuro);
+  margin-bottom: 10px;
+}
+
+.tecnica-card p {
+  font-size: 13px;
+  color: var(--texto-grad);
+  line-height: 1.75;
+}
+
+@media(max-width:900px){
+  .cf-hero-inner, .pagina-container { width: 92%; }
+  .cf-hero h1 { font-size: 28px; }
+  .tecnicas-grid { grid-template-columns: 1fr 1fr; }
+  .cf-hero-stats { gap: 20px; }
+}
+
+@media(max-width:560px){
+  .tecnicas-grid { grid-template-columns: 1fr; }
+  .cf-hero-stats { flex-direction: column; gap: 16px; }
+  .stat-div { width: 40px; height: 1px; }
+}

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cómo funciona — SIFIS</title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/inicio.css">
+  <link rel="stylesheet" href="/static/css/como-funciona.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="brand-group">
+      <img src="/static/img/logoEmpresa.png" alt="AM Dev Solutions" class="logo-empresa">
+      <span class="brand">SIFIS</span>
+    </div>
+  <ul class="nav-links">
+    <li><a href="/" class="nav-link">Inicio</a></li>
+    <li><a href="/como-funciona" class="nav-link activo">Cómo funciona</a></li>
+    <li><a href="/acerca" class="nav-link">Acerca de</a></li>
+  </ul>
+  </nav>
+
+  <!-- HERO OSCURO -->
+  <section class="cf-hero">
+    <div class="cf-hero-inner">
+      <div class="badge badge-hero">
+        <img src="/static/img/cerebro-humano.png" alt="">
+        <span>Proceso de análisis forense</span>
+      </div>
+      <h1>¿Cómo detecta SIFIS imágenes generadas por IA?</h1>
+      <p>Un flujo de cuatro pasos combina análisis forense clásico con redes neuronales profundas para entregar un veredicto con nivel de confianza medible.</p>
+
+      <div class="cf-hero-stats">
+        <div class="stat">
+          <span class="stat-num">4</span>
+          <span class="stat-label">Etapas de análisis</span>
+        </div>
+        <div class="stat-div"></div>
+        <div class="stat">
+          <span class="stat-num">70%</span>
+          <span class="stat-label">Precisión mínima</span>
+        </div>
+        <div class="stat-div"></div>
+        <div class="stat">
+          <span class="stat-num">120K</span>
+          <span class="stat-label">Imágenes de entrenamiento</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="pagina-container">
+
+    <!-- PASOS / TIMELINE -->
+    <section class="pasos-section">
+      <div class="pasos-header">
+        <h2>El proceso, paso a paso</h2>
+        <p>Desde que subes la imagen hasta que recibes el resultado, así trabaja SIFIS.</p>
+      </div>
+
+      <div class="pasos-timeline">
+
+        <div class="paso-cf">
+          <div class="paso-cf-lado">
+            <div class="paso-cf-num">1</div>
+            <div class="paso-cf-linea"></div>
+          </div>
+          <div class="paso-cf-contenido">
+            <div class="paso-cf-card">
+              <h2>Carga y preprocesado de la imagen</h2>
+              <p>La imagen subida (JPG, PNG o WEBP) se valida, se redimensiona y se normaliza para asegurar condiciones uniformes antes de cualquier análisis, evitando que el tamaño o el formato original afecten el resultado.</p>
+              <div class="tags-lista">
+                <span class="tag">Pillow</span>
+                <span class="tag">Validación de formato</span>
+                <span class="tag">Normalización</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="paso-cf">
+          <div class="paso-cf-lado">
+            <div class="paso-cf-num">2</div>
+            <div class="paso-cf-linea"></div>
+          </div>
+          <div class="paso-cf-contenido">
+            <div class="paso-cf-card">
+              <h2>Análisis ELA (Error Level Analysis)</h2>
+              <p>Se aplica un análisis de nivel de error mediante OpenCV, una técnica forense clásica que resalta discrepancias en la compresión de la imagen. Estas discrepancias suelen ser invisibles al ojo humano, pero revelan patrones de edición o generación artificial.</p>
+              <div class="tags-lista">
+                <span class="tag">OpenCV</span>
+                <span class="tag">Compresión JPEG</span>
+                <span class="tag">Mapa de errores</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="paso-cf">
+          <div class="paso-cf-lado">
+            <div class="paso-cf-num">3</div>
+            <div class="paso-cf-linea"></div>
+          </div>
+          <div class="paso-cf-contenido">
+            <div class="paso-cf-card">
+              <h2>Clasificación con red neuronal EfficientNet-B0</h2>
+              <p>La imagen, junto con su mapa ELA, se procesa mediante una red neuronal convolucional basada en EfficientNet-B0, entrenada con el dataset CIFAKE de 120,000 imágenes reales y sintéticas, para identificar patrones característicos de modelos generativos como GAN y modelos de difusión.</p>
+              <div class="tags-lista">
+                <span class="tag">EfficientNet-B0</span>
+                <span class="tag">CIFAKE Dataset</span>
+                <span class="tag">CNN</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="paso-cf">
+          <div class="paso-cf-lado">
+            <div class="paso-cf-num">4</div>
+          </div>
+          <div class="paso-cf-contenido">
+            <div class="paso-cf-card">
+              <h2>Cálculo del nivel de confianza</h2>
+              <p>Los resultados del análisis ELA y de la red neuronal se combinan para generar un porcentaje de confianza final mediante scikit-learn, indicando si la imagen es probablemente real o generada por IA, junto con un resumen interpretativo del resultado.</p>
+              <div class="tags-lista">
+                <span class="tag">scikit-learn</span>
+                <span class="tag">Score de confianza</span>
+                <span class="tag">Resultado interpretado</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- TÉCNICAS -->
+    <section class="tecnicas-section">
+      <div class="tecnicas-header">
+        <h2>Técnicas detrás de SIFIS</h2>
+        <p>Fundamentos teóricos y herramientas que sostienen el sistema de detección.</p>
+      </div>
+
+      <div class="tecnicas-grid">
+
+        <div class="tecnica-card">
+          <div class="tecnica-num">01</div>
+          <div class="tecnica-icono">
+            <img src="/static/img/ojo (1).png" alt="">
+          </div>
+          <h3>Error Level Analysis (ELA)</h3>
+          <p>Técnica forense que identifica diferencias en la compresión de distintas regiones de una imagen, evidenciando posibles manipulaciones o reconstrucciones generadas artificialmente.</p>
+        </div>
+
+        <div class="tecnica-card">
+          <div class="tecnica-num">02</div>
+          <div class="tecnica-icono">
+            <img src="/static/img/chip.png" alt="">
+          </div>
+          <h3>Redes neuronales convolucionales</h3>
+          <p>EfficientNet-B0 extrae características visuales profundas de la imagen, aprendiendo a distinguir patrones sutiles que diferencian rostros reales de rostros generados por modelos como GAN o difusión.</p>
+        </div>
+
+        <div class="tecnica-card">
+          <div class="tecnica-num">03</div>
+          <div class="tecnica-icono">
+            <img src="/static/img/por-ciento.png" alt="">
+          </div>
+          <h3>Evaluación y métricas</h3>
+          <p>scikit-learn y NumPy se utilizan para calcular métricas de desempeño del modelo y traducir las salidas técnicas en un porcentaje de confianza claro y comprensible para el usuario final.</p>
+        </div>
+
+      </div>
+    </section>
+
+  </div>
+
+  <!-- ══════ FOOTER ══════ -->
+  <footer class="footer-sifis">
+    <div class="footer-inner">
+
+      <div class="footer-col">
+        <div class="footer-brand">
+          <img src="/static/img/logoEmpresa.png" alt="AM Dev Solutions" class="logo-empresa">
+          <span>SIFIS</span>
+        </div>
+        <p>
+          Sistema de Identificación Forense de Imágenes Sintéticas, desarrollado
+          como proyecto de estadía profesional para la verificación de contenido
+          digital generado por Inteligencia Artificial.
+        </p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Navegación</h4>
+        <a href="/">Inicio</a>
+        <a href="/como-funciona">Cómo funciona</a>
+        <a href="/acerca">Acerca de</a>
+      </div>
+
+      <div class="footer-col">
+        <h4>Institución</h4>
+        <p>Universidad Tecnológica de la Huasteca Hidalguense</p>
+        <p>Huejutla de Reyes, Hidalgo · México</p>
+        <p>Estadía profesional · 2026</p>
+      </div>
+
+    </div>
+
+    <div class="footer-bottom">
+      © 2026 SIFIS · Proyecto académico desarrollado con <span>Python, Flask &amp; OpenCV</span>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
