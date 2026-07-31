@@ -1,3 +1,42 @@
+function actualizarIconoTema(tema) {
+  const iconoSol = document.getElementById("icono-sol");
+  const iconoLuna = document.getElementById("icono-luna");
+  if (!iconoSol || !iconoLuna) return;
+
+  if (tema === "light") {
+    iconoSol.style.display = "none";
+    iconoLuna.style.display = "block";
+  } else {
+    iconoSol.style.display = "block";
+    iconoLuna.style.display = "none";
+  }
+}
+
+(function inicializarTema() {
+  const guardado = localStorage.getItem("sifis-tema");
+  const prefiereClaro = window.matchMedia("(prefers-color-scheme: light)").matches;
+  const temaInicial = guardado || (prefiereClaro ? "light" : "dark");
+
+  if (temaInicial === "light") {
+    document.documentElement.setAttribute("data-theme", "light");
+  }
+  actualizarIconoTema(temaInicial);
+})();
+
+function alternarTema() {
+  const actual = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
+  const nuevo = actual === "light" ? "dark" : "light";
+
+  if (nuevo === "light") {
+    document.documentElement.setAttribute("data-theme", "light");
+  } else {
+    document.documentElement.removeAttribute("data-theme");
+  }
+
+  localStorage.setItem("sifis-tema", nuevo);
+  actualizarIconoTema(nuevo);
+}
+
 const state = {
   archivo: null,
   analizando: false,
@@ -16,6 +55,8 @@ const DURACION_PASO_1 = 1600;
 const DURACION_PASO_2 = 2200;
 const DURACION_PASO_3 = 2600;
 const DURACION_PASO_4 = 1500;
+
+const ICONO_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
 function mostrarToast(mensaje, tipo = "error") {
   const existente = document.getElementById("sifis-toast");
@@ -60,6 +101,8 @@ function resetearPasos() {
     paso.classList.remove("paso-activo", "paso-completado");
     const estadoEl = paso.querySelector(".paso-estado");
     if (estadoEl) estadoEl.textContent = "En espera";
+    const numEl = paso.querySelector(".paso-num");
+    if (numEl) numEl.textContent = i;
     barra.style.width = "0%";
   }
 }
@@ -97,6 +140,10 @@ function animarBarra(num, duracion) {
         paso.classList.remove("paso-activo");
         paso.classList.add("paso-completado");
         if (estadoEl) estadoEl.textContent = "Completado";
+
+        const numEl = paso.querySelector(".paso-num");
+        if (numEl) numEl.innerHTML = ICONO_CHECK;
+
         resolve();
       }
     }
@@ -377,17 +424,12 @@ function mostrarResultados(data) {
     })
   );
 
-  const probabilidadIA = data.prediccion_cruda * 100;
   const labelProbabilidad = document.getElementById("label-probabilidad");
   const valProbabilidad = document.getElementById("val-probabilidad");
+  const complemento = 100 - confianza;
 
-  if (esIA) {
-    labelProbabilidad.textContent = "Probabilidad de IA";
-    valProbabilidad.textContent = probabilidadIA.toFixed(1) + "%";
-  } else {
-    labelProbabilidad.textContent = "Probabilidad de Real";
-    valProbabilidad.textContent = (100 - probabilidadIA).toFixed(1) + "%";
-  }
+  labelProbabilidad.textContent = esIA ? "Probabilidad Real" : "Probabilidad IA";
+  valProbabilidad.textContent = complemento.toFixed(1) + "%";
 
   document.getElementById("val-confianza").textContent = nivelDeConfianza(confianza);
   document.getElementById("val-clasificacion").textContent = esIA ? "IA" : "Real";
@@ -464,7 +506,7 @@ function reiniciar() {
   if (alertaTextoReset) alertaTextoReset.textContent = "—";
 
   const labelProbabilidadReset = document.getElementById("label-probabilidad");
-  if (labelProbabilidadReset) labelProbabilidadReset.textContent = "Probabilidad de IA";
+  if (labelProbabilidadReset) labelProbabilidadReset.textContent = "Probabilidad IA";
 
   document.getElementById("val-probabilidad").textContent = "—";
   document.getElementById("val-confianza").textContent = "—";
@@ -487,6 +529,7 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnCambiarImagen = document.getElementById("btn-cambiar-imagen");
   const btnConfirmarAnalizar = document.getElementById("btn-confirmar-analizar");
   const btnReiniciar = document.getElementById("btn-reiniciar");
+  const btnTema = document.getElementById("btn-tema");
 
   btnAnalizar.addEventListener("click", () => {
     if (state.analizando) return;
@@ -549,6 +592,10 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   btnReiniciar.addEventListener("click", reiniciar);
+
+  if (btnTema) {
+    btnTema.addEventListener("click", alternarTema);
+  }
 
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "Enter" && state.archivo && !state.analizando && state.turnstileToken) {
