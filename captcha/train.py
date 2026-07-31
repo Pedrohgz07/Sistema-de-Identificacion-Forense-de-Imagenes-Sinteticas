@@ -254,7 +254,7 @@ def main():
 
     evaluar_modelo(model, test_ds, class_names, optimal_threshold)
 
-    model.save('modelo_ai_vs_real_final.keras')
+    model.save('modelo_ai_vs_real_v2.keras')
 
 
 if __name__ == '__main__':
