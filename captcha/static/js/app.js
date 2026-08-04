@@ -1,48 +1,11 @@
-function actualizarIconoTema(tema) {
-  const iconoSol = document.getElementById("icono-sol");
-  const iconoLuna = document.getElementById("icono-luna");
-  if (!iconoSol || !iconoLuna) return;
-
-  if (tema === "light") {
-    iconoSol.style.display = "none";
-    iconoLuna.style.display = "block";
-  } else {
-    iconoSol.style.display = "block";
-    iconoLuna.style.display = "none";
-  }
-}
-
-(function inicializarTema() {
-  const guardado = localStorage.getItem("sifis-tema");
-  const prefiereClaro = window.matchMedia("(prefers-color-scheme: light)").matches;
-  const temaInicial = guardado || (prefiereClaro ? "light" : "dark");
-
-  if (temaInicial === "light") {
-    document.documentElement.setAttribute("data-theme", "light");
-  }
-  actualizarIconoTema(temaInicial);
-})();
-
-function alternarTema() {
-  const actual = document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark";
-  const nuevo = actual === "light" ? "dark" : "light";
-
-  if (nuevo === "light") {
-    document.documentElement.setAttribute("data-theme", "light");
-  } else {
-    document.documentElement.removeAttribute("data-theme");
-  }
-
-  localStorage.setItem("sifis-tema", nuevo);
-  actualizarIconoTema(nuevo);
-}
-
 const state = {
   archivo: null,
   analizando: false,
   controller: null,
   analisisId: 0,
   turnstileToken: null,
+  turnstileWidgetId: null,
+  turnstileReady: false,
   esperandoAnalisis: false,
   pasoAnimToken: 0,
 };
@@ -57,6 +20,10 @@ const DURACION_PASO_3 = 2600;
 const DURACION_PASO_4 = 1500;
 
 const ICONO_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
+
+function turnstileEstaOmitido() {
+  return document.body.dataset.turnstileBypass === "true";
+}
 
 function mostrarToast(mensaje, tipo = "error") {
   const existente = document.getElementById("sifis-toast");
@@ -91,6 +58,12 @@ function mostrarPantalla(id) {
   activa.removeAttribute("aria-hidden");
 
   window.scrollTo({ top: 0, behavior: "smooth" });
+
+  const encabezado = activa.querySelector("h1, h2");
+  if (encabezado) {
+    encabezado.setAttribute("tabindex", "-1");
+    encabezado.focus({ preventScroll: true });
+  }
 }
 
 function resetearPasos() {
@@ -187,28 +160,77 @@ function onTurnstileExpired() {
   }
 }
 
-function onTurnstileError() {
+function onTurnstileError(errorCode) {
   state.turnstileToken = null;
-  mostrarToast("No se pudo cargar la verificación de seguridad. Recarga la página.");
+  state.esperandoAnalisis = false;
+  const btnConfirmarAnalizar = document.getElementById("btn-confirmar-analizar");
+  if (btnConfirmarAnalizar) btnConfirmarAnalizar.disabled = false;
+  console.error("Error de Turnstile:", errorCode || "desconocido");
+  const detalle = errorCode ? ` (código ${errorCode})` : "";
+  mostrarToast(`No se pudo cargar la verificación de seguridad${detalle}. Recarga la página.`);
+  return true;
+}
+
+function onTurnstileScriptError() {
+  state.turnstileReady = false;
+  state.esperandoAnalisis = false;
+  const btnConfirmarAnalizar = document.getElementById("btn-confirmar-analizar");
+  if (btnConfirmarAnalizar) btnConfirmarAnalizar.disabled = false;
+  mostrarToast("No se pudo conectar con Cloudflare Turnstile. Revisa tu conexión o bloqueadores.");
+}
+
+function renderTurnstile() {
+  const widget = document.getElementById("turnstileWidget");
+  if (!widget || !state.turnstileReady || !window.turnstile) return;
+
+  const sitekey = widget.dataset.sitekey;
+  if (!sitekey) {
+    mostrarToast("La clave pública de Turnstile no está configurada.");
+    return;
+  }
+
+  if (state.turnstileWidgetId === null) {
+    state.turnstileWidgetId = window.turnstile.render(widget, {
+      sitekey,
+      language: widget.dataset.language || "es",
+      theme: document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark",
+      callback: onTurnstileSuccess,
+      "expired-callback": onTurnstileExpired,
+      "error-callback": onTurnstileError,
+    });
+  }
+}
+
+function onTurnstileLoad() {
+  state.turnstileReady = true;
+  if (state.esperandoAnalisis) renderTurnstile();
 }
 
 function resetTurnstile() {
-  state.turnstileToken = null;
-  if (window.turnstile && document.getElementById("turnstileWidget")) {
+  state.turnstileToken = turnstileEstaOmitido() ? "development-bypass" : null;
+  if (turnstileEstaOmitido()) return;
+  if (window.turnstile && state.turnstileWidgetId !== null) {
     try {
-      window.turnstile.reset("#turnstileWidget");
+      window.turnstile.reset(state.turnstileWidgetId);
     } catch (e) {}
   }
 }
 
 function alternarCaptcha(mostrar) {
   const widget = document.getElementById("turnstileWidget");
+  if (turnstileEstaOmitido()) {
+    if (widget) widget.style.display = "none";
+    return;
+  }
   if (widget) widget.style.display = mostrar ? "block" : "none";
+  if (mostrar) renderTurnstile();
 }
 
 window.onTurnstileSuccess = onTurnstileSuccess;
 window.onTurnstileExpired = onTurnstileExpired;
 window.onTurnstileError = onTurnstileError;
+window.onTurnstileLoad = onTurnstileLoad;
+window.onTurnstileScriptError = onTurnstileScriptError;
 
 function procesarArchivo(file) {
   if (state.analizando) return;
@@ -324,7 +346,11 @@ async function enviarImagen(file, animacionPasosPromise) {
     if (data.error) {
       throw new Error(data.error);
     }
-    if (typeof data.prediccion !== "string" || typeof data.confianza !== "number") {
+    if (
+      !["REAL", "INCONCLUSO", "IA"].includes(data.prediccion) ||
+      typeof data.confianza !== "number" ||
+      typeof data.probabilidad_ia !== "number"
+    ) {
       throw new Error("Respuesta del servidor inválida");
     }
 
@@ -397,42 +423,55 @@ function mostrarResultados(data) {
   mostrarPantalla("pantalla-resultado");
 
   const esIA = data.prediccion === "IA";
+  const esInconcluso = data.prediccion === "INCONCLUSO";
   const confianza = data.confianza;
+  const probabilidadIA = data.probabilidad_ia;
 
   const banner = document.getElementById("resultado-banner");
-  banner.className = "resultado-banner" + (esIA ? " falsa" : "");
+  banner.className = "resultado-banner" + (esIA ? " falsa" : esInconcluso ? " inconclusa" : "");
 
-  document.getElementById("banner-num").textContent = esIA ? "IA" : "R";
-  document.getElementById("banner-titulo").textContent = esIA ? "Imagen generada por IA" : "Imagen real";
+  document.getElementById("banner-num").textContent = esIA ? "IA" : esInconcluso ? "?" : "R";
+  document.getElementById("banner-titulo").textContent = esIA
+    ? "Probablemente generada por IA"
+    : esInconcluso
+      ? "Resultado inconcluso"
+      : "Probablemente real";
 
   const alertaTexto = document.getElementById("banner-alerta-texto");
   if (alertaTexto) {
     alertaTexto.textContent = esIA
-      ? "Imagen probablemente de IA"
-      : "Imagen probablemente real";
+      ? "El puntaje supera el límite de 65%"
+      : esInconcluso
+        ? "El puntaje está en la zona de incertidumbre (35–65%)"
+        : "El puntaje está por debajo del límite de 35%";
   }
 
   const pctEl = document.getElementById("banner-pct");
   pctEl.textContent = "0%";
-  animarNumero(pctEl, confianza);
+  pctEl.setAttribute("aria-label", "Puntuación de IA");
+  animarNumero(pctEl, probabilidadIA);
 
   const fill = document.getElementById("banner-barra-fill");
   fill.style.width = "0%";
   requestAnimationFrame(() =>
     requestAnimationFrame(() => {
-      fill.style.width = confianza + "%";
+      fill.style.width = probabilidadIA + "%";
     })
   );
 
   const labelProbabilidad = document.getElementById("label-probabilidad");
   const valProbabilidad = document.getElementById("val-probabilidad");
-  const complemento = 100 - confianza;
+  labelProbabilidad.textContent = "Puntuación de IA";
+  valProbabilidad.textContent = probabilidadIA.toFixed(1) + "%";
 
-  labelProbabilidad.textContent = esIA ? "Probabilidad Real" : "Probabilidad IA";
-  valProbabilidad.textContent = complemento.toFixed(1) + "%";
-
-  document.getElementById("val-confianza").textContent = nivelDeConfianza(confianza);
-  document.getElementById("val-clasificacion").textContent = esIA ? "IA" : "Real";
+  document.getElementById("val-confianza").textContent = esInconcluso
+    ? "No concluyente"
+    : nivelDeConfianza(confianza);
+  document.getElementById("val-clasificacion").textContent = esIA
+    ? "Probablemente IA"
+    : esInconcluso
+      ? "Inconcluso"
+      : "Probablemente real";
 
   if (state.archivo) {
     document.getElementById("val-archivo").textContent =
@@ -529,7 +568,10 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnCambiarImagen = document.getElementById("btn-cambiar-imagen");
   const btnConfirmarAnalizar = document.getElementById("btn-confirmar-analizar");
   const btnReiniciar = document.getElementById("btn-reiniciar");
-  const btnTema = document.getElementById("btn-tema");
+
+  if (turnstileEstaOmitido()) {
+    state.turnstileToken = "development-bypass";
+  }
 
   btnAnalizar.addEventListener("click", () => {
     if (state.analizando) return;
@@ -593,10 +635,6 @@ document.addEventListener("DOMContentLoaded", function () {
 
   btnReiniciar.addEventListener("click", reiniciar);
 
-  if (btnTema) {
-    btnTema.addEventListener("click", alternarTema);
-  }
-
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && e.key === "Enter" && state.archivo && !state.analizando && state.turnstileToken) {
       e.preventDefault();
@@ -610,8 +648,3 @@ document.addEventListener("DOMContentLoaded", function () {
     }
   });
 });
-
-window.SIFIS = {
-  reiniciar,
-  state,
-};
