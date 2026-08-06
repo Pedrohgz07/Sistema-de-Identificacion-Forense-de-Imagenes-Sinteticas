@@ -185,5 +185,10 @@ def como_funciona():
 def acerca():
     return render_template("acerca.html")
 
+
+@app.route("/privacidad")
+def privacidad():
+    return render_template("privacidad.html")
+
 if __name__ == "__main__":
     app.run(debug=FLASK_DEBUG)

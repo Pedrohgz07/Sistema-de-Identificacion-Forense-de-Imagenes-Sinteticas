@@ -69,6 +69,20 @@
   margin-bottom: var(--section-spacing);
 }
 
+.mision-card,
+.quienes-card {
+  margin-bottom: 0;
+}
+
+.pagina-container > .acerca-card + .acerca-card {
+  margin-top: 18px;
+}
+
+.quienes-card p:last-child,
+.mision-card p {
+  margin-bottom: 0;
+}
+
 .acerca-card {
   background: var(--bg-surface);
   backdrop-filter: blur(20px) saturate(160%);
@@ -76,13 +90,8 @@
   border: 1px solid var(--border-default);
   border-radius: var(--card-radius);
   padding: var(--card-padding);
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
   transition: .3s;
-}
-
-.acerca-card:hover{
-  border-color: var(--border-primary);
-  box-shadow: var(--shadow-primary-hover);
 }
 
 .card-eyebrow {
@@ -135,11 +144,11 @@
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
   border-radius: var(--card-radius);
-  padding: var(--card-padding) 30px;
+  padding: var(--card-padding);
   display: flex;
   flex-direction: column;
   gap: 0;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-sm);
   position: relative;
   overflow: hidden;
 }
@@ -231,13 +240,13 @@
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
   border: 1px solid var(--border-default);
-  border-radius: 22px;
-  padding: 32px 18px;
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
   text-align: center;
   transition: .3s;
   position: relative;
   overflow: hidden;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .persona-card::after {
@@ -249,14 +258,6 @@
   opacity: 0;
   transition: .25s;
 }
-
-.persona-card:hover {
-  border-color: var(--color-primary-400);
-  box-shadow: var(--shadow-primary-hover);
-  transform: translateY(-5px);
-}
-
-.persona-card:hover::after { opacity: 1; }
 
 .persona-avatar {
   width: 62px;
@@ -332,20 +333,14 @@
   backdrop-filter: blur(16px) saturate(160%);
   -webkit-backdrop-filter: blur(16px) saturate(160%);
   border: 1px solid var(--border-default);
-  border-radius: 18px;
-  padding: 22px 20px;
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
   text-align: left;
   transition: .3s;
   display: flex;
   flex-direction: column;
   gap: 4px;
   box-shadow: var(--shadow-sm);
-}
-
-.tech-item:hover {
-  border-color: var(--color-primary-400);
-  box-shadow: var(--shadow-primary-hover);
-  transform: translateY(-3px);
 }
 
 .tech-logo-wrap {

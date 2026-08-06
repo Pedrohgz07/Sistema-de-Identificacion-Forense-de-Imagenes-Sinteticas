@@ -93,7 +93,7 @@
 
   --font-heading: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
   --font-body: 'Inter', system-ui, sans-serif;
-  --font-brand: Arial, Helvetica, sans-serif;
+  --font-brand: 'Plus Jakarta Sans', 'Inter', system-ui, sans-serif;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -104,7 +104,7 @@
   --text-3xl: 1.875rem;
   --text-4xl: clamp(2rem, 4.5vw, 2.875rem);
   --hero-title-size: clamp(30px, 4.5vw, 44px);
-  --hero-subtitle-size: 15px;
+  --hero-subtitle-size: 16px;
   --hero-padding-top: 80px;
   --hero-padding-bottom: 70px;
   --hero-title-max-width: 900px;
@@ -116,10 +116,10 @@
   --section-spacing: 70px;
   --section-header-spacing: 40px;
   --section-title-size: 26px;
-  --section-copy-size: 13px;
-  --card-radius: 24px;
-  --card-padding: 40px;
-  --card-copy-size: 13.5px;
+  --section-copy-size: 15px;
+  --card-radius: var(--radius-lg);
+  --card-padding: clamp(24px, 3vw, 40px);
+  --card-copy-size: 15px;
   --eyebrow-size: 11px;
   --tag-size: 12px;
   --tag-radius: 999px;
@@ -481,11 +481,11 @@ h1, h2, h3, h4, .brand {
 .subir-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
   max-width: 700px;
   margin: 36px auto;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-sm);
   transition: all var(--transition-base);
 }
 
@@ -715,8 +715,8 @@ h1, h2, h3, h4, .brand {
 
 .card {
   background: var(--bg-surface);
-  padding: var(--space-xl) 20px;
-  border-radius: var(--radius-lg);
+  padding: var(--card-padding);
+  border-radius: var(--card-radius);
   text-align: center;
   border: 1px solid var(--border-default);
   box-shadow: var(--shadow-sm);
@@ -765,9 +765,9 @@ h1, h2, h3, h4, .brand {
   max-width: 1100px;
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
-  padding: var(--space-2xl);
-  box-shadow: var(--shadow-lg);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-sm);
   transition: all var(--transition-base);
 }
 
@@ -963,9 +963,9 @@ h1, h2, h3, h4, .brand {
 .resultado-card {
   background: var(--bg-surface);
   border: 1px solid var(--border-default);
-  border-radius: var(--radius-xl);
-  padding: var(--space-xl);
-  box-shadow: var(--shadow-xl);
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
+  box-shadow: var(--shadow-sm);
   transition: all var(--transition-base);
 }
 
@@ -974,6 +974,10 @@ h1, h2, h3, h4, .brand {
   grid-template-columns: 1.1fr 1fr;
   gap: 30px;
   align-items: start;
+}
+
+.resultado-layout > * {
+  min-width: 0;
 }
 
 .resultado-col-izq {
@@ -1007,58 +1011,24 @@ h1, h2, h3, h4, .brand {
 }
 
 .resultado-banner {
-  background: var(--bg-glass-success);
-  border: 1px solid var(--border-success);
+  position: relative;
+  background: linear-gradient(115deg, rgba(16, 185, 129, 0.075), rgba(16, 185, 129, 0.025));
+  border: 1px solid rgba(52, 211, 153, 0.34);
   border-radius: var(--radius-lg);
   padding: 20px var(--space-lg) var(--space-md);
   margin-bottom: 18px;
+  box-shadow: inset 0 0 36px rgba(16, 185, 129, 0.025), 0 10px 30px rgba(0, 0, 0, 0.12);
   transition: all var(--transition-base);
 }
 
 .resultado-banner.falsa {
-  background: var(--bg-glass-error);
-  border-color: var(--border-error);
+  background: linear-gradient(115deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.025));
+  border-color: rgba(248, 113, 113, 0.36);
 }
 
 .resultado-banner.inconclusa {
   background: rgba(245, 158, 11, 0.10);
   border-color: rgba(245, 158, 11, 0.45);
-}
-
-.banner-alerta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 14px;
-}
-
-.banner-alerta-icono {
-  width: 18px;
-  height: 18px;
-  flex-shrink: 0;
-  color: var(--color-success-400);
-}
-
-.resultado-banner.falsa .banner-alerta-icono {
-  color: var(--color-error-400);
-}
-
-.resultado-banner.inconclusa .banner-alerta-icono {
-  color: var(--color-warning-400);
-}
-
-#banner-alerta-texto {
-  font-weight: 700;
-  font-size: var(--text-sm);
-  color: var(--color-success-400);
-}
-
-.resultado-banner.falsa #banner-alerta-texto {
-  color: var(--color-error-400);
-}
-
-.resultado-banner.inconclusa #banner-alerta-texto {
-  color: var(--color-warning-400);
 }
 
 .banner-top {
@@ -1067,53 +1037,69 @@ h1, h2, h3, h4, .brand {
   gap: 14px;
 }
 
-.banner-izq {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex: 1;
-}
-
-.banner-num {
-  width: 44px;
-  height: 44px;
+.banner-icono {
+  width: 32px;
+  height: 32px;
   border-radius: var(--radius-full);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: var(--text-sm);
   flex-shrink: 0;
-  background: rgba(16, 185, 129, 0.15);
-  color: var(--color-success-400);
-  border: 1.5px solid var(--border-success);
-  transition: all var(--transition-base);
+  color: #092a28;
+  background: #52d1a1;
+  box-shadow: 0 0 18px rgba(52, 211, 153, 0.16);
 }
 
-.resultado-banner.falsa .banner-num {
-  background: rgba(239, 68, 68, 0.15);
-  color: var(--color-error-400);
-  border-color: var(--border-error);
+.banner-icono svg {
+  width: 21px;
+  height: 21px;
 }
 
-.resultado-banner.inconclusa .banner-num {
-  background: rgba(245, 158, 11, 0.15);
-  color: var(--color-warning-400);
-  border-color: rgba(245, 158, 11, 0.45);
+.banner-icono-ia { display: none; }
+
+.resultado-banner.falsa .banner-icono {
+  color: #321011;
+  background: var(--color-error-400);
+  box-shadow: 0 0 18px rgba(248, 113, 113, 0.16);
 }
+
+.resultado-banner.falsa .banner-icono-check { display: none; }
+.resultado-banner.falsa .banner-icono-ia { display: block; }
 
 .banner-titulo {
-  font-weight: 700;
+  font-family: var(--font-heading);
+  font-weight: 800;
   font-size: var(--text-base);
+  line-height: 1.2;
+  color: #52d1a1;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
+}
+
+.resultado-banner.falsa .banner-titulo { color: var(--color-error-400); }
+
+.banner-resumen {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-top: 16px;
+}
+
+.banner-clasificacion {
+  font-weight: 700;
+  font-size: var(--text-sm);
   color: var(--text-primary);
-  margin-bottom: 2px;
 }
 
 .banner-pct {
   font-size: var(--text-2xl);
+  line-height: 1;
   font-weight: 800;
-  color: var(--color-success-400);
+  color: #52d1a1;
   flex-shrink: 0;
+  letter-spacing: -0.04em;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.22);
 }
 
 .resultado-banner.falsa .banner-pct {
@@ -1127,7 +1113,7 @@ h1, h2, h3, h4, .brand {
 .banner-barra-track {
   margin-top: 14px;
   height: 8px;
-  background: rgba(148, 163, 184, 0.15);
+  background: rgba(148, 163, 184, 0.38);
   border-radius: var(--radius-full);
   overflow: hidden;
 }
@@ -1136,12 +1122,12 @@ h1, h2, h3, h4, .brand {
   height: 100%;
   width: 0%;
   border-radius: var(--radius-full);
-  background: var(--color-success-400);
+  background: linear-gradient(90deg, #68e3ae, #52d1a1);
   transition: var(--transition-bar);
 }
 
 .resultado-banner.falsa .banner-barra-fill {
-  background: var(--color-error-400);
+  background: linear-gradient(90deg, #fb8a8a, var(--color-error-400));
 }
 
 .resultado-banner.inconclusa .banner-barra-fill {
@@ -1173,12 +1159,22 @@ h1, h2, h3, h4, .brand {
   font-size: var(--text-sm);
   color: var(--text-muted);
   font-weight: 500;
+  flex: 0 0 auto;
 }
 
 .fila-valor {
   font-size: 15px;
   font-weight: 700;
   color: var(--text-primary);
+  min-width: 0;
+  max-width: 70%;
+  margin-left: var(--space-md);
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+#val-archivo {
+  line-height: 1.4;
 }
 
 .ela-panel {
@@ -1529,7 +1525,7 @@ h1, h2, h3, h4, .brand {
   }
 
   .subir-card {
-    padding: var(--space-md) var(--space-md) var(--space-lg);
+    padding: var(--card-padding);
   }
 
   .subir-zone {
@@ -1538,7 +1534,7 @@ h1, h2, h3, h4, .brand {
 
   .analisis-card,
   .resultado-card {
-    padding: var(--space-lg);
+    padding: var(--card-padding);
   }
 
   .preview-box {
@@ -1549,6 +1545,28 @@ h1, h2, h3, h4, .brand {
   .imagen-resultado {
     height: 250px;
     min-height: 200px;
+  }
+
+  .resultado-banner {
+    padding: 18px var(--space-md) 14px;
+  }
+
+  .banner-icono {
+    width: 30px;
+    height: 30px;
+  }
+
+  .banner-icono svg {
+    width: 19px;
+    height: 19px;
+  }
+
+  .banner-resumen {
+    margin-top: 14px;
+  }
+
+  .banner-barra-track {
+    margin-top: 12px;
   }
   
   .nav-links {

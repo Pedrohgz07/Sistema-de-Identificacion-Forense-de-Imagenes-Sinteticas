@@ -347,9 +347,10 @@ async function enviarImagen(file, animacionPasosPromise) {
       throw new Error(data.error);
     }
     if (
-      !["REAL", "INCONCLUSO", "IA"].includes(data.prediccion) ||
+      !["REAL", "IA"].includes(data.prediccion) ||
       typeof data.confianza !== "number" ||
-      typeof data.probabilidad_ia !== "number"
+      typeof data.probabilidad_ia !== "number" ||
+      typeof data.umbral_ia !== "number"
     ) {
       throw new Error("Respuesta del servidor inválida");
     }
@@ -423,39 +424,30 @@ function mostrarResultados(data) {
   mostrarPantalla("pantalla-resultado");
 
   const esIA = data.prediccion === "IA";
-  const esInconcluso = data.prediccion === "INCONCLUSO";
   const confianza = data.confianza;
   const probabilidadIA = data.probabilidad_ia;
+  const umbralIA = data.umbral_ia;
 
   const banner = document.getElementById("resultado-banner");
-  banner.className = "resultado-banner" + (esIA ? " falsa" : esInconcluso ? " inconclusa" : "");
+  banner.className = "resultado-banner" + (esIA ? " falsa" : "");
 
-  document.getElementById("banner-num").textContent = esIA ? "IA" : esInconcluso ? "?" : "R";
   document.getElementById("banner-titulo").textContent = esIA
-    ? "Probablemente generada por IA"
-    : esInconcluso
-      ? "Resultado inconcluso"
-      : "Probablemente real";
-
-  const alertaTexto = document.getElementById("banner-alerta-texto");
-  if (alertaTexto) {
-    alertaTexto.textContent = esIA
-      ? "El puntaje supera el límite de 65%"
-      : esInconcluso
-        ? "El puntaje está en la zona de incertidumbre (35–65%)"
-        : "El puntaje está por debajo del límite de 35%";
-  }
+    ? "Imagen probablemente generada por IA"
+    : "Imagen probablemente humana";
+  document.getElementById("banner-clasificacion").textContent = esIA
+    ? "Imagen Generada por IA"
+    : "Fotografía Humana";
 
   const pctEl = document.getElementById("banner-pct");
   pctEl.textContent = "0%";
-  pctEl.setAttribute("aria-label", "Puntuación de IA");
-  animarNumero(pctEl, probabilidadIA);
+  pctEl.setAttribute("aria-label", "Confianza de la clasificación");
+  animarNumero(pctEl, confianza);
 
   const fill = document.getElementById("banner-barra-fill");
   fill.style.width = "0%";
   requestAnimationFrame(() =>
     requestAnimationFrame(() => {
-      fill.style.width = probabilidadIA + "%";
+      fill.style.width = confianza + "%";
     })
   );
 
@@ -464,14 +456,10 @@ function mostrarResultados(data) {
   labelProbabilidad.textContent = "Puntuación de IA";
   valProbabilidad.textContent = probabilidadIA.toFixed(1) + "%";
 
-  document.getElementById("val-confianza").textContent = esInconcluso
-    ? "No concluyente"
-    : nivelDeConfianza(confianza);
+  document.getElementById("val-confianza").textContent = nivelDeConfianza(confianza);
   document.getElementById("val-clasificacion").textContent = esIA
     ? "Probablemente IA"
-    : esInconcluso
-      ? "Inconcluso"
-      : "Probablemente real";
+    : "Probablemente real";
 
   if (state.archivo) {
     document.getElementById("val-archivo").textContent =
@@ -540,9 +528,6 @@ function reiniciar() {
   if (fill) fill.style.width = "0%";
   const pctEl = document.getElementById("banner-pct");
   if (pctEl) pctEl.textContent = "—";
-
-  const alertaTextoReset = document.getElementById("banner-alerta-texto");
-  if (alertaTextoReset) alertaTextoReset.textContent = "—";
 
   const labelProbabilidadReset = document.getElementById("label-probabilidad");
   if (labelProbabilidadReset) labelProbabilidadReset.textContent = "Probabilidad IA";

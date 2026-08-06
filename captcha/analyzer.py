@@ -1,4 +1,4 @@
-import os
+import json
 import numpy as np
 from PIL import Image, ImageChops
 import tensorflow as tf
@@ -7,24 +7,31 @@ import base64
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
-MODEL_PATH = BASE_DIR / "model" / "modelo_ai_vs_real_v2.keras"
+MODEL_PATH = BASE_DIR / "model" / "modelo_ai_vs_real.keras"
+THRESHOLD_PATH = BASE_DIR / "model" / "umbral_optimo.json"
+
+
+def cargar_umbral_decision() -> float:
+    try:
+        with THRESHOLD_PATH.open(encoding="utf-8") as archivo:
+            valor = float(json.load(archivo)["DECISION_THRESHOLD"])
+    except (OSError, ValueError, TypeError, KeyError, json.JSONDecodeError) as e:
+        raise RuntimeError(
+            f"No se pudo cargar un DECISION_THRESHOLD válido desde {THRESHOLD_PATH}"
+        ) from e
+
+    if not 0.0 <= valor <= 1.0:
+        raise RuntimeError("DECISION_THRESHOLD debe estar entre 0 y 1.")
+    return valor
+
+
+DECISION_THRESHOLD = cargar_umbral_decision()
 
 try:
     model = tf.keras.models.load_model(MODEL_PATH)
 except Exception as e:
     model = None
     print(f"[ERROR] No se pudo cargar el modelo: {e}")
-
-REAL_MAX_THRESHOLD = 0.35
-AI_MIN_THRESHOLD = 0.65
-
-try:
-    MODEL_TEMPERATURE = float(os.environ.get("MODEL_TEMPERATURE", "3.0"))
-except ValueError:
-    MODEL_TEMPERATURE = 3.0
-
-if MODEL_TEMPERATURE <= 0:
-    MODEL_TEMPERATURE = 3.0
 
 def ela_analysis(img: Image.Image, quality: int = 90) -> str:
 
@@ -80,18 +87,7 @@ def preprocess_image(img: Image.Image) -> np.ndarray:
 
 
 def clasificar_prediccion(prediction: float) -> str:
-    if prediction <= REAL_MAX_THRESHOLD:
-        return "REAL"
-    if prediction >= AI_MIN_THRESHOLD:
-        return "IA"
-    return "INCONCLUSO"
-
-
-def suavizar_prediccion(prediction: float, temperature: float = MODEL_TEMPERATURE) -> float:
-    epsilon = 1e-7
-    probability = float(np.clip(prediction, epsilon, 1.0 - epsilon))
-    logit = np.log(probability / (1.0 - probability))
-    return float(1.0 / (1.0 + np.exp(-(logit / temperature))))
+    return "IA" if prediction >= DECISION_THRESHOLD else "REAL"
 
 
 def calcular_confianza(prediction: float, clasificacion: str) -> float:
@@ -99,9 +95,6 @@ def calcular_confianza(prediction: float, clasificacion: str) -> float:
         confianza = prediction * 100
     elif clasificacion == "REAL":
         confianza = (1 - prediction) * 100
-    else:
-        confianza = max(prediction, 1 - prediction) * 100
-
     return round(min(max(confianza, 0.0), 100.0), 1)
 
 
@@ -115,7 +108,7 @@ def analyze_image(img: Image.Image) -> dict:
 
         img_array = preprocess_image(img)
         raw_prediction = float(model.predict(img_array, verbose=0)[0][0])
-        prediction = suavizar_prediccion(raw_prediction)
+        prediction = float(np.clip(raw_prediction, 0.0, 1.0))
         classification = clasificar_prediccion(prediction)
         confidence = calcular_confianza(prediction, classification)
         probability_ai = round(prediction * 100, 1)
@@ -124,6 +117,7 @@ def analyze_image(img: Image.Image) -> dict:
             "prediccion":       classification,
             "probabilidad_ia":  probability_ai,
             "confianza":        confidence,
+            "umbral_ia":        round(DECISION_THRESHOLD * 100, 1),
             "ela_imagen":       ela_imagen,
         }
 

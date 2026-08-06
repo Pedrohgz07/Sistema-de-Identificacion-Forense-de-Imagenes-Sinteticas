@@ -157,16 +157,10 @@
   backdrop-filter: blur(20px) saturate(160%);
   -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid var(--border-default);
-  border-radius: 22px;
-  padding: 30px 34px;
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
   transition: .3s;
-  box-shadow: var(--shadow-md);
-}
-
-.paso-cf-card:hover {
-  border-color: var(--border-primary);
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-6px);
+  box-shadow: var(--shadow-sm);
 }
 
 .paso-cf-card h2 {
@@ -225,13 +219,13 @@
   backdrop-filter: blur(18px) saturate(160%);
   -webkit-backdrop-filter: blur(18px) saturate(160%);
   border: 1px solid var(--border-default);
-  border-radius: 22px;
-  padding: 34px 26px;
+  border-radius: var(--card-radius);
+  padding: var(--card-padding);
   text-align: center;
   position: relative;
   overflow: hidden;
   transition: .3s;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-sm);
 }
 
 .tecnica-card::before {
@@ -243,14 +237,6 @@
   opacity: 0;
   transition: .25s;
 }
-
-.tecnica-card:hover {
-  border-color: var(--border-primary);
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-6px);
-}
-
-.tecnica-card:hover::before { opacity: 1; }
 
 .tecnica-num {
   font-size: 11px;
@@ -273,11 +259,6 @@
   justify-content: center;
   margin: 0 auto 18px;
   transition: all var(--transition-base);
-}
-
-.tecnica-card:hover .tecnica-icono {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.18), rgba(139, 92, 246, 0.10));
-  border-color: var(--border-primary);
 }
 
 .tecnica-icono img { width: 28px; height: 28px; }
