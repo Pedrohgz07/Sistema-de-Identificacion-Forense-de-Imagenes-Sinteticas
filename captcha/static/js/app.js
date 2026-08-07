@@ -437,6 +437,7 @@ function mostrarResultados(data) {
   document.getElementById("banner-clasificacion").textContent = esIA
     ? "Imagen Generada por IA"
     : "Fotografía Humana";
+  document.getElementById("banner-etiqueta").textContent = esIA ? "IA" : "R";
 
   const pctEl = document.getElementById("banner-pct");
   pctEl.textContent = "0%";

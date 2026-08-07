@@ -127,7 +127,7 @@
   width: 46px;
   height: 46px;
   border-radius: 50%;
-  background: var(--gradient-primary);
+  background: #0f766e;
   color: #ffffff;
   display: flex;
   align-items: center;
@@ -136,13 +136,13 @@
   font-weight: 800;
   flex-shrink: 0;
   z-index: 1;
-  box-shadow: 0 0 0 6px var(--bg-glass-primary), var(--shadow-primary);
+  box-shadow: 0 0 0 6px rgba(15, 118, 110, 0.12), 0 6px 16px rgba(15, 118, 110, 0.22);
 }
 
 .paso-cf-linea {
   width: 2px;
   flex: 1;
-  background: linear-gradient(to bottom, var(--color-primary-500), rgba(139, 92, 246, .15));
+  background: linear-gradient(to bottom, #0f766e, rgba(15, 118, 110, 0.16));
   margin: 8px 0;
   min-height: 36px;
 }

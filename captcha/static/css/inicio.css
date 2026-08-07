@@ -299,6 +299,22 @@ h1, h2, h3, h4, .brand {
   letter-spacing: 0.02em;
 }
 
+.brand-lockup {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.brand-subtitle {
+  margin-top: 0.3rem;
+  color: var(--text-muted);
+  font-family: var(--font-brand);
+  font-size: 0.66rem;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.2em;
+}
+
 .navbar-derecha {
   display: flex;
   align-items: center;
@@ -1084,6 +1100,36 @@ h1, h2, h3, h4, .brand {
   justify-content: space-between;
   gap: 20px;
   margin-top: 16px;
+}
+
+.banner-identidad {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;
+}
+
+.banner-etiqueta {
+  width: 54px;
+  height: 54px;
+  border: 1px solid rgba(52, 211, 153, 0.38);
+  border-radius: var(--radius-full);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: rgba(16, 185, 129, 0.12);
+  color: #52d1a1;
+  font-family: var(--font-heading);
+  font-size: var(--text-base);
+  font-weight: 800;
+  line-height: 1;
+}
+
+.resultado-banner.falsa .banner-etiqueta {
+  border-color: rgba(248, 113, 113, 0.42);
+  background: rgba(239, 68, 68, 0.12);
+  color: var(--color-error-400);
 }
 
 .banner-clasificacion {
