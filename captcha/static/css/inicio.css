@@ -1061,7 +1061,7 @@ h1, h2, h3, h4, .brand {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  color: #092a28;
+  color: #fff;
   background: #52d1a1;
   box-shadow: 0 0 18px rgba(52, 211, 153, 0.16);
 }
@@ -1073,8 +1073,13 @@ h1, h2, h3, h4, .brand {
 
 .banner-icono-ia { display: none; }
 
+.banner-icono .banner-icono-ia {
+  width: 17px;
+  height: 17px;
+}
+
 .resultado-banner.falsa .banner-icono {
-  color: #321011;
+  color: #fff;
   background: var(--color-error-400);
   box-shadow: 0 0 18px rgba(248, 113, 113, 0.16);
 }

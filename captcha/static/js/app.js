@@ -432,7 +432,7 @@ function mostrarResultados(data) {
   banner.className = "resultado-banner" + (esIA ? " falsa" : "");
 
   document.getElementById("banner-titulo").textContent = esIA
-    ? "Imagen probablemente generada por IA"
+    ? "Imagen probablemente de IA"
     : "Imagen probablemente humana";
   document.getElementById("banner-clasificacion").textContent = esIA
     ? "Imagen Generada por IA"
