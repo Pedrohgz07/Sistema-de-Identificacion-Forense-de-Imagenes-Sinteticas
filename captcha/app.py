@@ -36,8 +36,21 @@ MAX_IMAGE_PIXELS = 25_000_000
 Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS
 
 FLASK_DEBUG = os.environ.get("FLASK_DEBUG", "").lower() in {"1", "true", "yes"}
-TURNSTILE_SITE_KEY = os.environ.get("TURNSTILE_SITE_KEY", "").strip()
-TURNSTILE_SECRET_KEY = os.environ.get("TURNSTILE_SECRET_KEY", "").strip()
+USE_TURNSTILE_TEST_KEYS = os.environ.get(
+    "TURNSTILE_USE_TEST_KEYS", ""
+).lower() in {"1", "true", "yes"}
+TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA"
+TURNSTILE_TEST_SECRET_KEY = "1x0000000000000000000000000000000AA"
+TURNSTILE_SITE_KEY = (
+    TURNSTILE_TEST_SITE_KEY
+    if USE_TURNSTILE_TEST_KEYS
+    else os.environ.get("TURNSTILE_SITE_KEY", "").strip()
+)
+TURNSTILE_SECRET_KEY = (
+    TURNSTILE_TEST_SECRET_KEY
+    if USE_TURNSTILE_TEST_KEYS
+    else os.environ.get("TURNSTILE_SECRET_KEY", "").strip()
+)
 TURNSTILE_EXPECTED_HOSTNAME = os.environ.get("TURNSTILE_EXPECTED_HOSTNAME", "").strip().lower()
 TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
 TURNSTILE_ACTION = "analyze-image"
@@ -102,10 +115,10 @@ def verificar_turnstile(token: str, ip: str | None = None) -> bool:
     if not resultado.get("success"):
         logger.info("Turnstile rechazó el token: %s", resultado.get("error-codes", []))
         return False
-    if resultado.get("action") != TURNSTILE_ACTION:
+    if not USE_TURNSTILE_TEST_KEYS and resultado.get("action") != TURNSTILE_ACTION:
         logger.warning("Acción de Turnstile inesperada: %r", resultado.get("action"))
         return False
-    if TURNSTILE_EXPECTED_HOSTNAME:
+    if not USE_TURNSTILE_TEST_KEYS and TURNSTILE_EXPECTED_HOSTNAME:
         hostname = str(resultado.get("hostname", "")).lower()
         if hostname != TURNSTILE_EXPECTED_HOSTNAME:
             logger.warning("Hostname de Turnstile inesperado: %r", hostname)
