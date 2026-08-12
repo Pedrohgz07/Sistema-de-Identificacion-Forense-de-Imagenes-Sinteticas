@@ -11,7 +11,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/static/css/inicio.css?v=20260806-1">
 </head>
-<body>
+<body data-turnstile-bypass="{{ 'true' if turnstile_bypass else 'false' }}">
 
   <a class="skip-link" href="#contenido-principal">Saltar al contenido principal</a>
 
@@ -114,10 +114,11 @@
           <img id="preview-imagen-inicio" src="" alt="Vista previa de la imagen seleccionada">
         </div>
         <div
+          class="cf-turnstile"
           id="turnstileWidget"
-          class="turnstile-widget"
+          style="display:none;"
           data-sitekey="{{ turnstile_site_key }}"
-          hidden
+          data-language="es"
         ></div>
         <div class="preview-acciones">
           <button type="button" class="btn-cambiar" id="btn-cambiar-imagen">
@@ -340,10 +341,14 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="/static/js/app.js?v=20260806-1"></script>
+  {% if not turnstile_bypass %}
   <script
-    src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad"
+    src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
     async
     defer
+    onload="onTurnstileLoad()"
+    onerror="onTurnstileScriptError()"
   ></script>
+  {% endif %}
 </body>
 </html>
