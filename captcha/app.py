@@ -35,30 +35,12 @@ MAX_IMAGE_PIXELS = 25_000_000
 Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS
 
 FLASK_DEBUG = os.environ.get("FLASK_DEBUG", "").lower() in {"1", "true", "yes"}
-USE_TURNSTILE_TEST_KEYS = os.environ.get(
-    "TURNSTILE_USE_TEST_KEYS", ""
-).lower() in {"1", "true", "yes"}
-TURNSTILE_BYPASS_REQUESTED = os.environ.get(
-    "TURNSTILE_BYPASS", ""
-).lower() in {"1", "true", "yes"}
-TURNSTILE_BYPASS = TURNSTILE_BYPASS_REQUESTED and FLASK_DEBUG
-TURNSTILE_TEST_SITE_KEY = "1x00000000000000000000AA"
-TURNSTILE_TEST_SECRET_KEY = "1x0000000000000000000000000000000AA"
-
-TURNSTILE_SITE_KEY = (
-    TURNSTILE_TEST_SITE_KEY
-    if USE_TURNSTILE_TEST_KEYS
-    else os.environ.get("TURNSTILE_SITE_KEY", "")
-)
-TURNSTILE_SECRET_KEY = (
-    TURNSTILE_TEST_SECRET_KEY
-    if USE_TURNSTILE_TEST_KEYS
-    else os.environ.get("TURNSTILE_SECRET_KEY", "")
-)
+TURNSTILE_SITE_KEY = os.environ.get("TURNSTILE_SITE_KEY", "").strip()
+TURNSTILE_SECRET_KEY = os.environ.get("TURNSTILE_SECRET_KEY", "").strip()
+TURNSTILE_EXPECTED_HOSTNAME = os.environ.get("TURNSTILE_EXPECTED_HOSTNAME", "").strip().lower()
 TURNSTILE_VERIFY_URL = "https://challenges.cloudflare.com/turnstile/v0/siteverify"
-
-if TURNSTILE_BYPASS_REQUESTED and not FLASK_DEBUG:
-    logger.error("Se ignoró TURNSTILE_BYPASS porque FLASK_DEBUG no está habilitado.")
+TURNSTILE_ACTION = "analyze-image"
+TURNSTILE_TOKEN_MAX_LENGTH = 2048
 
 
 def allowed_file(filename: str) -> bool:
@@ -97,42 +79,42 @@ def abrir_imagen_segura(file_stream) -> Image.Image:
 
 
 def verificar_turnstile(token: str, ip: str | None = None) -> bool:
-
-    if TURNSTILE_BYPASS:
-        return True
-
-    if not token:
+    token = token.strip()
+    if not token or len(token) > TURNSTILE_TOKEN_MAX_LENGTH:
         return False
-
     if not TURNSTILE_SECRET_KEY:
         logger.error("TURNSTILE_SECRET_KEY no está configurada.")
         return False
 
+    payload = {"secret": TURNSTILE_SECRET_KEY, "response": token}
+    if ip:
+        payload["remoteip"] = ip
+
     try:
-        resp = requests.post(
-            TURNSTILE_VERIFY_URL,
-            data={
-                "secret": TURNSTILE_SECRET_KEY,
-                "response": token,
-                "remoteip": ip,
-            },
-            timeout=5,
-        )
-        resp.raise_for_status()
-        data = resp.json()
-        return bool(data.get("success", False))
-    except (requests.RequestException, ValueError) as e:
-        logger.warning("Fallo verificando Turnstile: %s", e)
+        response = requests.post(TURNSTILE_VERIFY_URL, data=payload, timeout=5)
+        response.raise_for_status()
+        resultado = response.json()
+    except (requests.RequestException, ValueError) as error:
+        logger.warning("No se pudo validar Turnstile: %s", error)
         return False
+
+    if not resultado.get("success"):
+        logger.info("Turnstile rechazó el token: %s", resultado.get("error-codes", []))
+        return False
+    if resultado.get("action") != TURNSTILE_ACTION:
+        logger.warning("Acción de Turnstile inesperada: %r", resultado.get("action"))
+        return False
+    if TURNSTILE_EXPECTED_HOSTNAME:
+        hostname = str(resultado.get("hostname", "")).lower()
+        if hostname != TURNSTILE_EXPECTED_HOSTNAME:
+            logger.warning("Hostname de Turnstile inesperado: %r", hostname)
+            return False
+    return True
 
 
 @app.route("/")
 def inicio():
-    return render_template(
-        "inicio.html",
-        turnstile_site_key=TURNSTILE_SITE_KEY,
-        turnstile_bypass=TURNSTILE_BYPASS,
-    )
+    return render_template("inicio.html", turnstile_site_key=TURNSTILE_SITE_KEY)
 
 
 @app.route("/analizar", methods=["POST"])
@@ -141,7 +123,7 @@ def inicio():
 def analizar():
     token = request.form.get("cf-turnstile-response", "")
     if not verificar_turnstile(token, request.remote_addr):
-        return jsonify({"error": "Verificación de captcha fallida. Intenta de nuevo."}), 403
+        return jsonify({"error": "No se pudo validar el CAPTCHA. Inténtalo de nuevo."}), 403
 
     if "imagen" not in request.files:
         return jsonify({"error": "No se recibió ninguna imagen"}), 400

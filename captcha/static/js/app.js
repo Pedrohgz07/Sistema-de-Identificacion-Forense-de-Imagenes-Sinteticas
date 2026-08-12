@@ -6,7 +6,7 @@ const state = {
   turnstileToken: null,
   turnstileWidgetId: null,
   turnstileReady: false,
-  esperandoAnalisis: false,
+  esperandoCaptcha: false,
   pasoAnimToken: 0,
 };
 
@@ -18,12 +18,9 @@ const DURACION_PASO_1 = 1600;
 const DURACION_PASO_2 = 2200;
 const DURACION_PASO_3 = 2600;
 const DURACION_PASO_4 = 1500;
+const PAUSA_CAPTCHA_CONFIRMADO = 800;
 
 const ICONO_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-
-function turnstileEstaOmitido() {
-  return document.body.dataset.turnstileBypass === "true";
-}
 
 function mostrarToast(mensaje, tipo = "error") {
   const existente = document.getElementById("sifis-toast");
@@ -142,95 +139,74 @@ function alternarTarjetaSubida(mostrar) {
   if (subirCard) subirCard.style.display = mostrar ? "block" : "none";
 }
 
-function onTurnstileSuccess(token) {
-  state.turnstileToken = token;
-
-  if (state.esperandoAnalisis && state.archivo) {
-    state.esperandoAnalisis = false;
-    iniciarAnalisis(state.archivo);
-  }
+function obtenerBotonConfirmar() {
+  return document.getElementById("btn-confirmar-analizar");
 }
 
-function onTurnstileExpired() {
-  state.turnstileToken = null;
-
-  if (state.esperandoAnalisis) {
-    const btnConfirmarAnalizar = document.getElementById("btn-confirmar-analizar");
-    if (btnConfirmarAnalizar) btnConfirmarAnalizar.disabled = false;
-  }
-}
-
-function onTurnstileError(errorCode) {
-  state.turnstileToken = null;
-  state.esperandoAnalisis = false;
-  const btnConfirmarAnalizar = document.getElementById("btn-confirmar-analizar");
-  if (btnConfirmarAnalizar) btnConfirmarAnalizar.disabled = false;
-  console.error("Error de Turnstile:", errorCode || "desconocido");
-  const detalle = errorCode ? ` (código ${errorCode})` : "";
-  mostrarToast(`No se pudo cargar la verificación de seguridad${detalle}. Recarga la página.`);
-  return true;
-}
-
-function onTurnstileScriptError() {
-  state.turnstileReady = false;
-  state.esperandoAnalisis = false;
-  const btnConfirmarAnalizar = document.getElementById("btn-confirmar-analizar");
-  if (btnConfirmarAnalizar) btnConfirmarAnalizar.disabled = false;
-  mostrarToast("No se pudo conectar con Cloudflare Turnstile. Revisa tu conexión o bloqueadores.");
-}
-
-function renderTurnstile() {
+function mostrarCaptcha() {
   const widget = document.getElementById("turnstileWidget");
-  if (!widget || !state.turnstileReady || !window.turnstile) return;
-
-  const sitekey = widget.dataset.sitekey;
-  if (!sitekey) {
-    mostrarToast("La clave pública de Turnstile no está configurada.");
+  const sitekey = widget?.dataset.sitekey;
+  if (!widget || !sitekey) {
+    state.esperandoCaptcha = false;
+    obtenerBotonConfirmar().disabled = false;
+    mostrarToast("Cloudflare Turnstile no está configurado. Agrega las claves en el archivo .env.");
+    return;
+  }
+  if (!state.turnstileReady || !window.turnstile) {
+    state.esperandoCaptcha = false;
+    obtenerBotonConfirmar().disabled = false;
+    mostrarToast("La verificación de seguridad todavía está cargando. Inténtalo de nuevo.", "info");
     return;
   }
 
+  widget.hidden = false;
   if (state.turnstileWidgetId === null) {
     state.turnstileWidgetId = window.turnstile.render(widget, {
       sitekey,
-      language: widget.dataset.language || "es",
-      theme: document.documentElement.getAttribute("data-theme") === "light" ? "light" : "dark",
+      action: "analyze-image",
+      language: "es",
+      theme: "auto",
+      size: "flexible",
       callback: onTurnstileSuccess,
       "expired-callback": onTurnstileExpired,
       "error-callback": onTurnstileError,
     });
+  } else {
+    window.turnstile.reset(state.turnstileWidgetId);
   }
 }
 
-function onTurnstileLoad() {
+function onTurnstileSuccess(token) {
+  state.turnstileToken = token;
+  if (!state.esperandoCaptcha || !state.archivo) return;
+  state.esperandoCaptcha = false;
+  const archivoConfirmado = state.archivo;
+  setTimeout(() => {
+    if (state.archivo === archivoConfirmado && state.turnstileToken && !state.analizando) {
+      iniciarAnalisis(archivoConfirmado);
+    }
+  }, PAUSA_CAPTCHA_CONFIRMADO);
+}
+
+function onTurnstileExpired() {
+  state.turnstileToken = null;
+  state.esperandoCaptcha = false;
+  obtenerBotonConfirmar().disabled = false;
+  mostrarToast("La verificación expiró. Pulsa Analizar imagen para intentarlo otra vez.", "info");
+}
+
+function onTurnstileError(errorCode) {
+  state.turnstileToken = null;
+  state.esperandoCaptcha = false;
+  obtenerBotonConfirmar().disabled = false;
+  console.error("Error de Turnstile:", errorCode || "desconocido");
+  mostrarToast("No se pudo completar la verificación de seguridad. Inténtalo de nuevo.");
+  return true;
+}
+
+window.onTurnstileLoad = function () {
   state.turnstileReady = true;
-  if (state.esperandoAnalisis) renderTurnstile();
-}
-
-function resetTurnstile() {
-  state.turnstileToken = turnstileEstaOmitido() ? "development-bypass" : null;
-  if (turnstileEstaOmitido()) return;
-  if (window.turnstile && state.turnstileWidgetId !== null) {
-    try {
-      window.turnstile.reset(state.turnstileWidgetId);
-    } catch (e) {}
-  }
-}
-
-function alternarCaptcha(mostrar) {
-  const widget = document.getElementById("turnstileWidget");
-  if (turnstileEstaOmitido()) {
-    if (widget) widget.style.display = "none";
-    return;
-  }
-  if (widget) widget.style.display = mostrar ? "block" : "none";
-  if (mostrar) renderTurnstile();
-}
-
-window.onTurnstileSuccess = onTurnstileSuccess;
-window.onTurnstileExpired = onTurnstileExpired;
-window.onTurnstileError = onTurnstileError;
-window.onTurnstileLoad = onTurnstileLoad;
-window.onTurnstileScriptError = onTurnstileScriptError;
+};
 
 function procesarArchivo(file) {
   if (state.analizando) return;
@@ -270,6 +246,8 @@ function procesarArchivo(file) {
 
 function limpiarSeleccion() {
   state.archivo = null;
+  state.turnstileToken = null;
+  state.esperandoCaptcha = false;
   document.getElementById("inputImagen").value = "";
 
   const preview = document.getElementById("preview-imagen-inicio");
@@ -283,9 +261,12 @@ function limpiarSeleccion() {
   document.getElementById("zonaSubida").style.display = "block";
   alternarTarjetaSubida(true);
 
-  state.esperandoAnalisis = false;
-  alternarCaptcha(false);
-  resetTurnstile();
+  const widget = document.getElementById("turnstileWidget");
+  if (widget) widget.hidden = true;
+  if (window.turnstile && state.turnstileWidgetId !== null) {
+    window.turnstile.reset(state.turnstileWidgetId);
+  }
+
 }
 
 function animarNumero(el, target) {
@@ -380,7 +361,8 @@ function iniciarAnalisis(file) {
   if (state.analizando) return;
 
   if (!state.turnstileToken) {
-    mostrarToast("Completa la verificación de seguridad antes de analizar.");
+    obtenerBotonConfirmar().disabled = false;
+    mostrarToast("Completa la verificación de seguridad antes de continuar.");
     return;
   }
 
@@ -485,8 +467,8 @@ function mostrarResultados(data) {
     elaToggle.setAttribute("aria-expanded", String(!oculto));
   };
 
-  resetTurnstile();
   state.analizando = false;
+  state.turnstileToken = null;
 }
 
 function reiniciar() {
@@ -555,10 +537,6 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnConfirmarAnalizar = document.getElementById("btn-confirmar-analizar");
   const btnReiniciar = document.getElementById("btn-reiniciar");
 
-  if (turnstileEstaOmitido()) {
-    state.turnstileToken = "development-bypass";
-  }
-
   btnAnalizar.addEventListener("click", () => {
     if (state.analizando) return;
     inputImagen.click();
@@ -607,24 +585,18 @@ document.addEventListener("DOMContentLoaded", function () {
   btnConfirmarAnalizar.addEventListener("click", () => {
     if (!state.archivo || state.analizando) return;
 
-    if (state.turnstileToken) {
-      btnConfirmarAnalizar.disabled = true;
-      iniciarAnalisis(state.archivo);
-      return;
-    }
-
-    alternarCaptcha(true);
-    state.esperandoAnalisis = true;
     btnConfirmarAnalizar.disabled = true;
-    mostrarToast("Completa la verificación de seguridad para continuar.", "info");
+    state.turnstileToken = null;
+    state.esperandoCaptcha = true;
+    mostrarCaptcha();
   });
 
   btnReiniciar.addEventListener("click", reiniciar);
 
   document.addEventListener("keydown", (e) => {
-    if (e.ctrlKey && e.key === "Enter" && state.archivo && !state.analizando && state.turnstileToken) {
+    if (e.ctrlKey && e.key === "Enter" && state.archivo && !state.analizando) {
       e.preventDefault();
-      iniciarAnalisis(state.archivo);
+      btnConfirmarAnalizar.click();
     }
   });
 
