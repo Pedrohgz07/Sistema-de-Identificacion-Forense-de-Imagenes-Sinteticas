@@ -208,6 +208,14 @@ window.onTurnstileLoad = function () {
   state.turnstileReady = true;
 };
 
+window.onTurnstileScriptError = function () {
+  state.turnstileReady = false;
+  state.esperandoCaptcha = false;
+  const botonConfirmar = obtenerBotonConfirmar();
+  if (botonConfirmar) botonConfirmar.disabled = false;
+  mostrarToast("No se pudo conectar con Cloudflare Turnstile. Revisa la conexión y vuelve a intentarlo.");
+};
+
 function procesarArchivo(file) {
   if (state.analizando) return;
 
