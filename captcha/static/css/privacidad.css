@@ -15,8 +15,8 @@
   pointer-events: none;
 }
 .privacy-hero-inner { position: relative; width: var(--content-width); max-width: 860px; margin: 0 auto; }
-.privacy-eyebrow { display: inline-block; margin-bottom: 16px; color: var(--color-primary-400); font-size: var(--eyebrow-size); font-weight: 800; letter-spacing: .12em; text-transform: uppercase; }
-.privacy-hero h1 { margin: 0 0 16px; color: var(--text-primary); font-size: var(--hero-title-size); font-weight: 800; letter-spacing: -.025em; }
+.privacy-eyebrow { display: inline-block; margin-bottom: 16px; color: var(--color-primary-400); font-size: var(--eyebrow-size); font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+.privacy-hero h1 { margin: 0 0 16px; color: var(--text-primary); font-size: var(--hero-title-size); font-weight: 600; letter-spacing: -.015em; }
 .privacy-date { margin: 0; color: var(--text-supporting); font-size: 14px; }
 
 .privacy-layout { width: var(--content-width); max-width: 900px; margin: 0 auto; padding: var(--section-padding-top) 0 var(--section-padding-bottom); }
@@ -24,7 +24,7 @@
 .privacy-card { padding: var(--card-padding); background: var(--bg-surface); border: 1px solid var(--border-default); border-radius: var(--card-radius); box-shadow: var(--shadow-sm); }
 .privacy-card section { scroll-margin-top: 110px; padding-bottom: 30px; margin-bottom: 30px; }
 .privacy-card section:last-child { padding-bottom: 0; margin-bottom: 0; border-bottom: 0; }
-.privacy-card h2 { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; color: var(--text-primary); font-size: 20px; font-weight: 800; }
+.privacy-card h2 { display: flex; align-items: center; gap: 12px; margin: 0 0 16px; color: var(--text-primary); font-size: 20px; font-weight: 600; }
 .privacy-card h2 span { display: inline-flex; width: 32px; height: 32px; flex: 0 0 32px; align-items: center; justify-content: center; border-radius: 10px; background: var(--bg-glass-primary); border: 1px solid var(--border-primary); color: var(--color-primary-400); font-size: 13px; }
 .privacy-card p, .privacy-card li { color: var(--text-supporting); font-size: var(--card-copy-size); line-height: 1.85; }
 .privacy-card p { margin: 0 0 12px; }

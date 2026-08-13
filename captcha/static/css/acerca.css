@@ -39,7 +39,7 @@
 
 .ac-hero h1 {
   font-size: var(--hero-title-size);
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
   max-width: var(--hero-title-max-width);
   margin: 0 auto var(--hero-title-gap);
@@ -96,7 +96,7 @@
 
 .card-eyebrow {
   font-size: var(--eyebrow-size);
-  font-weight: 800;
+  font-weight: 600;
   color: var(--color-primary-400);
   letter-spacing: .12em;
   text-transform: uppercase;
@@ -105,7 +105,7 @@
 
 .acerca-card h2 {
   font-size: 22px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 18px;
 }
@@ -177,7 +177,7 @@
 
 .inst-nombre {
   font-size: 16px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
   line-height: 1.4;
   margin-bottom: 6px;
@@ -222,7 +222,7 @@
 
 .seccion-header h2 {
   font-size: var(--section-title-size);
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 8px;
 }
@@ -279,14 +279,14 @@
 
 .asesor-av {
   background: var(--bg-glass-accent);
-  border-color: rgba(139, 92, 246, 0.30);
+  border-color: var(--border-primary);
 }
 
 .asesor-av svg { stroke: var(--color-accent-400); }
 
 .persona-nombre {
   font-size: 13.5px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 4px;
   line-height: 1.4;
@@ -315,7 +315,7 @@
 
 .persona-rol.asesor-rol {
   background: var(--bg-glass-accent);
-  border: 1px solid rgba(139, 92, 246, 0.30);
+  border: 1px solid var(--border-primary);
   color: var(--color-accent-300);
 }
 
@@ -374,7 +374,7 @@
 .tech-nombre {
   display: block;
   font-size: 14px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
 }
 

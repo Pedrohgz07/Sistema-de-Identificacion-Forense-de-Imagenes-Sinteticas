@@ -33,7 +33,7 @@
 
 .cf-hero h1 {
   font-size: var(--hero-title-size);
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
   max-width: var(--hero-title-max-width);
   margin: 0 auto var(--hero-title-gap);
@@ -61,7 +61,7 @@
 .stat-num {
   display: block;
   font-size: 30px;
-  font-weight: 800;
+  font-weight: 600;
   background: var(--gradient-primary);
   background-clip: text;
   -webkit-background-clip: text;
@@ -98,7 +98,7 @@
 
 .pasos-header h2 {
   font-size: var(--section-title-size);
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 8px;
 }
@@ -133,7 +133,7 @@
   align-items: center;
   justify-content: center;
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 600;
   flex-shrink: 0;
   z-index: 1;
 }
@@ -164,7 +164,7 @@
 
 .paso-cf-card h2 {
   font-size: 17px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 10px;
 }
@@ -200,7 +200,7 @@
 
 .tecnicas-header h2 {
   font-size: var(--section-title-size);
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 8px;
 }
@@ -239,7 +239,7 @@
 
 .tecnica-num {
   font-size: 11px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--color-accent-400);
   letter-spacing: .12em;
   margin-bottom: 18px;
@@ -250,7 +250,7 @@
 .tecnica-icono {
   width: 56px;
   height: 56px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.06));
+  background: var(--bg-surface-soft);
   border: 1px solid var(--border-default);
   border-radius: 16px;
   display: flex;
@@ -264,7 +264,7 @@
 
 .tecnica-card h3 {
   font-size: 15.5px;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--text-primary);
   margin-bottom: 10px;
 }

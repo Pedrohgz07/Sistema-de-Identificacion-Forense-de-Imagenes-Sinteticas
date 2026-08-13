@@ -18,7 +18,7 @@ const DURACION_PASO_1 = 1600;
 const DURACION_PASO_2 = 2200;
 const DURACION_PASO_3 = 2600;
 const DURACION_PASO_4 = 1500;
-const PAUSA_CAPTCHA_CONFIRMADO = 800;
+const PAUSA_CAPTCHA_CONFIRMADO = 1200;
 
 const ICONO_CHECK = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
 
@@ -29,19 +29,20 @@ function mostrarToast(mensaje, tipo = "error") {
   const toast = document.createElement("div");
   toast.id = "sifis-toast";
   toast.className = `sifis-toast sifis-toast--${tipo}`;
-  toast.setAttribute("role", "alert");
-  toast.setAttribute("aria-live", "assertive");
-  toast.setAttribute("tabindex", "-1");
+  const esError = tipo === "error";
+  toast.setAttribute("role", esError ? "alert" : "status");
+  toast.setAttribute("aria-live", esError ? "assertive" : "polite");
+  toast.setAttribute("aria-atomic", "true");
   toast.textContent = mensaje;
   document.body.appendChild(toast);
 
-  toast.focus();
   toast.getBoundingClientRect();
   toast.classList.add("sifis-toast--visible");
 
   setTimeout(() => {
     toast.classList.remove("sifis-toast--visible");
     toast.addEventListener("transitionend", () => toast.remove(), { once: true });
+    setTimeout(() => toast.remove(), 500);
   }, 4000);
 }
 
@@ -123,9 +124,12 @@ function animarBarra(num, duracion) {
 }
 
 async function iniciarAnimacionPasos() {
+  const tokenAnimacion = ++state.pasoAnimToken;
   resetearPasos();
   await animarBarra(1, DURACION_PASO_1);
+  if (state.pasoAnimToken !== tokenAnimacion) return;
   await animarBarra(2, DURACION_PASO_2);
+  if (state.pasoAnimToken !== tokenAnimacion) return;
   await animarBarra(3, DURACION_PASO_3);
 }
 
@@ -141,6 +145,36 @@ function alternarTarjetaSubida(mostrar) {
 
 function obtenerBotonConfirmar() {
   return document.getElementById("btn-confirmar-analizar");
+}
+
+function abrirModalCaptcha() {
+  const modal = document.getElementById("captchaModal");
+  if (!modal) return;
+  modal.hidden = false;
+  modal.removeAttribute("aria-hidden");
+  document.body.classList.add("captcha-modal-abierto");
+  document.getElementById("btn-cerrar-captcha")?.focus();
+}
+
+function cerrarModalCaptcha({ cancelar = false } = {}) {
+  const modal = document.getElementById("captchaModal");
+  if (!modal || modal.hidden) return;
+  modal.hidden = true;
+  modal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("captcha-modal-abierto");
+
+  if (cancelar) {
+    state.turnstileToken = null;
+    state.esperandoCaptcha = false;
+    const botonConfirmar = obtenerBotonConfirmar();
+    if (botonConfirmar) {
+      botonConfirmar.disabled = false;
+      botonConfirmar.focus();
+    }
+    if (window.turnstile && state.turnstileWidgetId !== null) {
+      window.turnstile.reset(state.turnstileWidgetId);
+    }
+  }
 }
 
 function mostrarCaptcha() {
@@ -159,7 +193,7 @@ function mostrarCaptcha() {
     return;
   }
 
-  widget.hidden = false;
+  abrirModalCaptcha();
   if (state.turnstileWidgetId === null) {
     state.turnstileWidgetId = window.turnstile.render(widget, {
       sitekey,
@@ -183,7 +217,10 @@ function onTurnstileSuccess(token) {
   const archivoConfirmado = state.archivo;
   setTimeout(() => {
     if (state.archivo === archivoConfirmado && state.turnstileToken && !state.analizando) {
+      cerrarModalCaptcha();
       iniciarAnalisis(archivoConfirmado);
+    } else {
+      cerrarModalCaptcha();
     }
   }, PAUSA_CAPTCHA_CONFIRMADO);
 }
@@ -191,6 +228,7 @@ function onTurnstileSuccess(token) {
 function onTurnstileExpired() {
   state.turnstileToken = null;
   state.esperandoCaptcha = false;
+  cerrarModalCaptcha();
   obtenerBotonConfirmar().disabled = false;
   mostrarToast("La verificación expiró. Pulsa Analizar imagen para intentarlo otra vez.", "info");
 }
@@ -198,6 +236,7 @@ function onTurnstileExpired() {
 function onTurnstileError(errorCode) {
   state.turnstileToken = null;
   state.esperandoCaptcha = false;
+  cerrarModalCaptcha();
   obtenerBotonConfirmar().disabled = false;
   console.error("Error de Turnstile:", errorCode || "desconocido");
   mostrarToast("No se pudo completar la verificación de seguridad. Inténtalo de nuevo.");
@@ -211,6 +250,7 @@ window.onTurnstileLoad = function () {
 window.onTurnstileScriptError = function () {
   state.turnstileReady = false;
   state.esperandoCaptcha = false;
+  cerrarModalCaptcha();
   const botonConfirmar = obtenerBotonConfirmar();
   if (botonConfirmar) botonConfirmar.disabled = false;
   mostrarToast("No se pudo conectar con Cloudflare Turnstile. Revisa la conexión y vuelve a intentarlo.");
@@ -221,6 +261,12 @@ function procesarArchivo(file) {
 
   const inputImagen = document.getElementById("inputImagen");
   const permitidos = ["image/jpeg", "image/png", "image/webp"];
+
+  if (!file || file.size === 0) {
+    mostrarToast("El archivo está vacío. Selecciona otra imagen.");
+    inputImagen.value = "";
+    return;
+  }
 
   if (!permitidos.includes(file.type)) {
     mostrarToast("Formato no permitido. Usa JPG, PNG o WEBP.");
@@ -269,8 +315,7 @@ function limpiarSeleccion() {
   document.getElementById("zonaSubida").style.display = "block";
   alternarTarjetaSubida(true);
 
-  const widget = document.getElementById("turnstileWidget");
-  if (widget) widget.hidden = true;
+  cerrarModalCaptcha();
   if (window.turnstile && state.turnstileWidgetId !== null) {
     window.turnstile.reset(state.turnstileWidgetId);
   }
@@ -308,15 +353,11 @@ async function enviarImagen(file, animacionPasosPromise) {
   }, TIMEOUT_GLOBAL);
 
   try {
-    const fetchPromise = fetch("/analizar", {
+    const res = await fetch("/analizar", {
       method: "POST",
       body: formData,
       signal: state.controller.signal,
     });
-
-    const [res] = await Promise.all([fetchPromise, animacionPasosPromise]);
-
-    clearTimeout(timeoutId);
 
     if (!res.ok) {
       const errorData = await res.text();
@@ -325,12 +366,19 @@ async function enviarImagen(file, animacionPasosPromise) {
         const json = JSON.parse(errorData);
         mensaje = json.error || mensaje;
       } catch (e) {
-        mensaje = errorData || mensaje;
+        mensaje = res.status >= 500
+          ? "El servidor no pudo completar el análisis. Inténtalo de nuevo."
+          : errorData || mensaje;
       }
       throw new Error(mensaje);
     }
 
-    const data = await res.json();
+    let data;
+    try {
+      data = await res.json();
+    } catch (error) {
+      throw new Error("El servidor devolvió una respuesta inválida.");
+    }
 
     if (data.error) {
       throw new Error(data.error);
@@ -341,8 +389,12 @@ async function enviarImagen(file, animacionPasosPromise) {
       typeof data.probabilidad_ia !== "number" ||
       typeof data.umbral_ia !== "number"
     ) {
-      throw new Error("Respuesta del servidor inválida");
+      throw new Error("El servidor devolvió una respuesta inválida.");
     }
+
+    if (miAnalisisId !== state.analisisId) return;
+
+    await animacionPasosPromise;
 
     if (miAnalisisId !== state.analisisId) return;
 
@@ -352,16 +404,20 @@ async function enviarImagen(file, animacionPasosPromise) {
     mostrarResultados(data);
 
   } catch (err) {
-    clearTimeout(timeoutId);
-
     if (err.name === "AbortError") return;
     if (miAnalisisId !== state.analisisId) return;
 
-    const mensaje = err.message.includes("Failed to fetch")
+    const esErrorDeRed = err instanceof TypeError || /failed to fetch|networkerror|load failed/i.test(err.message);
+    const mensaje = esErrorDeRed
       ? "No se pudo conectar con el servidor. Revisa tu conexión."
       : err.message || "Ocurrió un error inesperado.";
     mostrarToast(mensaje);
     reiniciar();
+  } finally {
+    clearTimeout(timeoutId);
+    if (miAnalisisId === state.analisisId) {
+      state.controller = null;
+    }
   }
 }
 
@@ -425,8 +481,8 @@ function mostrarResultados(data) {
     ? "Imagen probablemente de IA"
     : "Imagen probablemente humana";
   document.getElementById("banner-clasificacion").textContent = esIA
-    ? "Imagen Generada por IA"
-    : "Fotografía Humana";
+    ? "Imagen generada por IA"
+    : "Fotografía humana";
   document.getElementById("banner-etiqueta").textContent = esIA ? "IA" : "R";
 
   const pctEl = document.getElementById("banner-pct");
@@ -444,13 +500,17 @@ function mostrarResultados(data) {
 
   const labelProbabilidad = document.getElementById("label-probabilidad");
   const valProbabilidad = document.getElementById("val-probabilidad");
-  labelProbabilidad.textContent = "Puntuación de IA";
-  valProbabilidad.textContent = probabilidadIA.toFixed(1) + "%";
+  labelProbabilidad.textContent = esIA
+    ? "Puntuación de imagen real"
+    : "Puntuación de IA";
+  valProbabilidad.textContent = esIA
+    ? (100 - probabilidadIA).toFixed(1) + "%"
+    : probabilidadIA.toFixed(1) + "%";
 
   document.getElementById("val-confianza").textContent = nivelDeConfianza(confianza);
   document.getElementById("val-clasificacion").textContent = esIA
-    ? "Probablemente IA"
-    : "Probablemente real";
+    ? "IA"
+    : "Real";
 
   if (state.archivo) {
     document.getElementById("val-archivo").textContent =
@@ -521,7 +581,7 @@ function reiniciar() {
   if (pctEl) pctEl.textContent = "—";
 
   const labelProbabilidadReset = document.getElementById("label-probabilidad");
-  if (labelProbabilidadReset) labelProbabilidadReset.textContent = "Probabilidad IA";
+  if (labelProbabilidadReset) labelProbabilidadReset.textContent = "Puntuación de IA";
 
   document.getElementById("val-probabilidad").textContent = "—";
   document.getElementById("val-confianza").textContent = "—";
@@ -544,6 +604,9 @@ document.addEventListener("DOMContentLoaded", function () {
   const btnCambiarImagen = document.getElementById("btn-cambiar-imagen");
   const btnConfirmarAnalizar = document.getElementById("btn-confirmar-analizar");
   const btnReiniciar = document.getElementById("btn-reiniciar");
+  const btnCerrarCaptcha = document.getElementById("btn-cerrar-captcha");
+  const btnCancelarCaptcha = document.getElementById("btn-cancelar-captcha");
+  const captchaModal = document.getElementById("captchaModal");
 
   btnAnalizar.addEventListener("click", () => {
     if (state.analizando) return;
@@ -600,8 +663,18 @@ document.addEventListener("DOMContentLoaded", function () {
   });
 
   btnReiniciar.addEventListener("click", reiniciar);
+  btnCerrarCaptcha.addEventListener("click", () => cerrarModalCaptcha({ cancelar: true }));
+  btnCancelarCaptcha.addEventListener("click", () => cerrarModalCaptcha({ cancelar: true }));
+  captchaModal.querySelector("[data-captcha-cerrar]").addEventListener("click", () => {
+    cerrarModalCaptcha({ cancelar: true });
+  });
 
   document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && !captchaModal.hidden) {
+      e.preventDefault();
+      cerrarModalCaptcha({ cancelar: true });
+      return;
+    }
     if (e.ctrlKey && e.key === "Enter" && state.archivo && !state.analizando) {
       e.preventDefault();
       btnConfirmarAnalizar.click();

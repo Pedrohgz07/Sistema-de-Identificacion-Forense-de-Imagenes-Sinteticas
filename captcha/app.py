@@ -1,7 +1,6 @@
 
 import os
 import logging
-import warnings
 import requests
 from flask import Flask, render_template, request, jsonify
 from flask_limiter import Limiter
@@ -29,11 +28,10 @@ limiter.exempt(app.view_functions["static"])
 app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
 ALLOWED_IMAGE_FORMATS = {"JPEG", "PNG", "WEBP"}
-MAX_IMAGE_WIDTH = 8192
-MAX_IMAGE_HEIGHT = 8192
-MAX_IMAGE_PIXELS = 25_000_000
 
-Image.MAX_IMAGE_PIXELS = MAX_IMAGE_PIXELS
+# Se conserva el límite del archivo, pero no se restringen sus dimensiones
+# ni la cantidad de píxeles que Pillow puede decodificar.
+Image.MAX_IMAGE_PIXELS = None
 
 FLASK_DEBUG = os.environ.get("FLASK_DEBUG", "").lower() in {"1", "true", "yes"}
 USE_TURNSTILE_TEST_KEYS = os.environ.get(
@@ -63,33 +61,21 @@ def allowed_file(filename: str) -> bool:
 
 def abrir_imagen_segura(file_stream) -> Image.Image:
     file_stream.seek(0)
+    image = Image.open(file_stream)
+    width, height = image.size
 
-    with warnings.catch_warnings():
-        warnings.simplefilter("error", Image.DecompressionBombWarning)
-        image = Image.open(file_stream)
-        width, height = image.size
+    if (image.format or "").upper() not in ALLOWED_IMAGE_FORMATS:
+        raise ValueError("El contenido del archivo no corresponde a JPG, PNG o WEBP.")
 
-        if (image.format or "").upper() not in ALLOWED_IMAGE_FORMATS:
-            raise ValueError("El contenido del archivo no corresponde a JPG, PNG o WEBP.")
+    if width <= 0 or height <= 0:
+        raise ValueError("La imagen tiene dimensiones inválidas.")
 
-        if width <= 0 or height <= 0:
-            raise ValueError("La imagen tiene dimensiones inválidas.")
-        if width > MAX_IMAGE_WIDTH or height > MAX_IMAGE_HEIGHT:
-            raise ValueError(
-                f"Las dimensiones máximas permitidas son "
-                f"{MAX_IMAGE_WIDTH}×{MAX_IMAGE_HEIGHT} píxeles."
-            )
-        if width * height > MAX_IMAGE_PIXELS:
-            raise ValueError(
-                f"La imagen supera el máximo de {MAX_IMAGE_PIXELS:,} píxeles."
-            )
+    image.verify()
 
-        image.verify()
-
-        file_stream.seek(0)
-        image = Image.open(file_stream)
-        image.load()
-        return image
+    file_stream.seek(0)
+    image = Image.open(file_stream)
+    image.load()
+    return image
 
 
 def verificar_turnstile(token: str, ip: str | None = None) -> bool:
@@ -140,29 +126,36 @@ def analizar():
         return jsonify({"error": "No se pudo validar el CAPTCHA. Inténtalo de nuevo."}), 403
 
     if "imagen" not in request.files:
-        return jsonify({"error": "No se recibió ninguna imagen"}), 400
+        return jsonify({"error": "No se recibió ninguna imagen."}), 400
 
     file = request.files["imagen"]
 
     if file.filename == "":
-        return jsonify({"error": "Archivo vacío"}), 400
+        return jsonify({"error": "El archivo está vacío."}), 400
 
     if not allowed_file(file.filename):
-        return jsonify({"error": "Formato no permitido. Usa JPG, PNG o WEBP"}), 400
+        return jsonify({"error": "Formato no permitido. Usa JPG, PNG o WEBP."}), 400
 
     try:
         img = abrir_imagen_segura(file.stream)
         resultado = analyze_image(img)
         return jsonify(resultado)
-    except (Image.DecompressionBombError, Image.DecompressionBombWarning):
-        return jsonify({"error": "La imagen contiene demasiados píxeles para procesarla de forma segura."}), 413
     except (UnidentifiedImageError, OSError, SyntaxError):
         return jsonify({"error": "El archivo no es una imagen válida o está dañado."}), 400
     except ValueError as e:
         return jsonify({"error": str(e)}), 400
-    except Exception as e:
+    except Exception:
         logger.exception("Error inesperado procesando una imagen")
-        return jsonify({"error": f"Error al procesar la imagen: {str(e)}"}), 500
+        return jsonify({
+            "error": "No se pudo procesar la imagen. Inténtalo de nuevo más tarde."
+        }), 500
+
+
+@app.errorhandler(413)
+def archivo_demasiado_grande(error):
+    return jsonify({
+        "error": "La imagen supera el límite de 10 MB."
+    }), 413
 
 
 @app.errorhandler(429)

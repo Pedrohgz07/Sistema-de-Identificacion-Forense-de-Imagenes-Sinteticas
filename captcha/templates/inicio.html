@@ -8,8 +8,8 @@
   <link rel="icon" type="image/png" href="/static/img/logoEmpresa.png">
   <script src="/static/js/theme.js?v=20260803-5"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/static/css/inicio.css?v=20260806-1">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/inicio.css?v=20260813-2">
 </head>
 <body>
 
@@ -28,7 +28,7 @@
       <ul class="nav-links">
         <li><a href="/" class="nav-link activo" aria-current="page">Inicio</a></li>
         <li><a href="/como-funciona" class="nav-link">Cómo funciona</a></li>
-        <li><a href="/acerca" class="nav-link">Acerca de Nosotros</a></li>
+        <li><a href="/acerca" class="nav-link">Acerca de nosotros</a></li>
       </ul>
 
       <button
@@ -66,8 +66,8 @@
         </div>
         <h1 id="titulo-inicio">Identificación forense de rostros generados por inteligencia artificial</h1>
         <p class="subtitulo">
-          Sube la foto de un rostro y nuestro sistema, aplicando análisis forense y
-           redes neuronales entrenadas, lo determina en segundos
+          Sube la foto de un rostro. Nuestro sistema aplica análisis forense y
+          redes neuronales para determinar su posible origen en segundos.
         </p>
       </header>
 
@@ -77,7 +77,7 @@
             <img src="/static/img/subir222.png" alt="">
           </div>
           <h3 class="subir-titulo" id="subir-titulo">Arrastra y suelta tu imagen aquí</h3>
-          <p class="subir-hint" id="hint-formatos">O haga clic para seleccionar un archivo</p>
+          <p class="subir-hint" id="hint-formatos">O haz clic para seleccionar un archivo</p>
           <div class="formatos-list" aria-label="Formatos de imagen aceptados">
             <span>JPG</span><span>PNG</span><span>WEBP</span>
           </div>
@@ -113,12 +113,6 @@
         <div class="preview-imagen-wrap">
           <img id="preview-imagen-inicio" src="" alt="Vista previa de la imagen seleccionada">
         </div>
-        <div
-          id="turnstileWidget"
-          class="turnstile-widget"
-          data-sitekey="{{ turnstile_site_key }}"
-          hidden
-        ></div>
         <div class="preview-acciones">
           <button type="button" class="btn-cambiar" id="btn-cambiar-imagen">
             Cambiar imagen
@@ -138,7 +132,7 @@
         <article class="card">
           <img src="/static/img/chip.png" alt="" aria-hidden="true">
           <h3>Red neuronal CNN</h3>
-          <p>Modelo EfficientNet-B0 entrenado con 120,000 imágenes</p>
+          <p>Modelo EfficientNet-B0 entrenado con 120 000 imágenes</p>
         </article>
         <article class="card">
           <img src="/static/img/por-ciento.png" alt="" aria-hidden="true">
@@ -217,6 +211,9 @@
 
     <div id="pantalla-resultado" class="pantalla" aria-hidden="true">
       <div class="resultado-card">
+        <div class="resultado-header">
+          <h2>Resultado del análisis</h2>
+        </div>
         <div class="resultado-layout">
           <div class="resultado-col-izq">
             <div class="imagen-resultado">
@@ -245,7 +242,7 @@
               <div class="banner-resumen">
                 <div class="banner-identidad">
                   <span class="banner-etiqueta" id="banner-etiqueta" aria-hidden="true">R</span>
-                  <div class="banner-clasificacion" id="banner-clasificacion">Fotografía Humana</div>
+                  <div class="banner-clasificacion" id="banner-clasificacion">Fotografía humana</div>
                 </div>
                 <span class="banner-pct" id="banner-pct" aria-label="Confianza de la clasificación">—</span>
               </div>
@@ -307,6 +304,39 @@
 
   </main>
 
+  <div class="captcha-modal" id="captchaModal" hidden aria-hidden="true">
+    <div class="captcha-modal-backdrop" data-captcha-cerrar></div>
+    <section
+      class="captcha-modal-card"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="captcha-modal-titulo"
+      aria-describedby="captcha-modal-descripcion"
+    >
+      <button
+        type="button"
+        class="captcha-modal-cerrar"
+        id="btn-cerrar-captcha"
+        aria-label="Cancelar verificación y cerrar"
+      >
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+      <h2 id="captcha-modal-titulo">Verificación de seguridad</h2>
+      <p id="captcha-modal-descripcion">Confirma que eres una persona para iniciar el análisis.</p>
+      <div
+        id="turnstileWidget"
+        class="turnstile-widget"
+        data-sitekey="{{ turnstile_site_key }}"
+      ></div>
+      <button type="button" class="captcha-modal-cancelar" id="btn-cancelar-captcha">
+        Cancelar
+      </button>
+    </section>
+  </div>
+
   <footer class="footer-sifis" role="contentinfo">
     <div class="footer-inner">
       <div class="footer-col">
@@ -317,7 +347,7 @@
         <p>
           Sistema de Identificación Forense de Imágenes Sintéticas, desarrollado
           como herramienta de análisis forense para la verificación de contenido
-          digital generado por Inteligencia Artificial.
+          digital generado por inteligencia artificial.
         </p>
       </div>
       <div class="footer-col">
@@ -339,7 +369,7 @@
   </footer>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="/static/js/app.js?v=20260812-1"></script>
+  <script src="/static/js/app.js?v=20260813-1"></script>
   <script
     src="https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit&onload=onTurnstileLoad"
     async
