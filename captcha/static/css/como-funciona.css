@@ -62,7 +62,7 @@
   display: block;
   font-size: 30px;
   font-weight: 600;
-  background: var(--gradient-primary);
+  background: linear-gradient(135deg, #2F6899 0%, #245681 100%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -179,9 +179,9 @@
 .tags-lista { display: flex; gap: 8px; flex-wrap: wrap; }
 
 .tag {
-  background: var(--bg-glass-primary);
-  border: 1px solid var(--border-primary);
-  color: var(--color-primary-300);
+  background: rgba(86, 130, 168, 0.10);
+  border: 1px solid rgba(86, 130, 168, 0.42);
+  color: #89A8C3;
   font-size: var(--tag-size);
   font-weight: 700;
   padding: 5px 14px;

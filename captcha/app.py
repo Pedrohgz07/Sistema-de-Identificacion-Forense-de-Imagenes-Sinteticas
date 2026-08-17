@@ -29,8 +29,6 @@ app.config["MAX_CONTENT_LENGTH"] = 10 * 1024 * 1024
 ALLOWED_EXTENSIONS = {"jpg", "jpeg", "png", "webp"}
 ALLOWED_IMAGE_FORMATS = {"JPEG", "PNG", "WEBP"}
 
-# Se conserva el límite del archivo, pero no se restringen sus dimensiones
-# ni la cantidad de píxeles que Pillow puede decodificar.
 Image.MAX_IMAGE_PIXELS = None
 
 FLASK_DEBUG = os.environ.get("FLASK_DEBUG", "").lower() in {"1", "true", "yes"}
@@ -178,6 +176,11 @@ def acerca():
 @app.route("/privacidad")
 def privacidad():
     return render_template("privacidad.html")
+
+
+@app.route("/documentacion")
+def documentacion():
+    return render_template("documentacion.html")
 
 if __name__ == "__main__":
     app.run(debug=FLASK_DEBUG)

@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Documentación técnica verificable de SIFIS.">
+  <title>Documentación técnica — SIFIS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../static/css/documentacion.css">
+</head>
+<body>
+  <header class="doc-hero">
+    <div class="doc-hero-inner">
+      <span class="doc-eyebrow">Documentación técnica del proyecto</span>
+      <h1>SIFIS</h1>
+      <p class="doc-subtitle">Sistema de Identificación Forense de Imágenes Sintéticas. Esta documentación describe el comportamiento implementado actualmente en el código.</p>
+    </div>
+  </header>
+
+  <main class="doc-container">
+    <section class="doc-card" id="descripcion">
+      <div class="card-num">01</div>
+      <h2>1. Propósito y alcance</h2>
+      <p>SIFIS analiza imágenes JPG, PNG y WEBP de hasta 10 MB para estimar si corresponden a contenido generado por IA o a una imagen real. La clasificación la realiza un modelo de Keras cargado desde <code>model/modelo_ai_vs_real.keras</code>.</p>
+      <p>El sistema genera además una visualización de <em>Error Level Analysis</em> (ELA). Esta visualización es un apoyo interpretativo: no se utiliza como entrada del modelo ni altera la clasificación.</p>
+      <div class="note"><strong>Limitación:</strong> el resultado es una estimación probabilística y no constituye una prueba forense definitiva.</div>
+    </section>
+
+    <section class="doc-card" id="arquitectura">
+      <div class="card-num">02</div>
+      <h2>2. Flujo de análisis</h2>
+      <div class="flow">
+        <div class="step"><strong>1. Cliente:</strong> el usuario selecciona una imagen JPG, PNG o WEBP. La interfaz valida el tamaño máximo de 10 MB.</div>
+        <div class="arrow">↓</div>
+        <div class="step"><strong>2. Turnstile:</strong> Cloudflare Turnstile genera un token de verificación humana.</div>
+        <div class="arrow">↓</div>
+        <div class="step"><strong>3. API <code>POST /analizar</code>:</strong> Flask valida el token, limita las solicitudes y comprueba extensión, formato y contenido de la imagen.</div>
+        <div class="arrow">↓</div>
+        <div class="step"><strong>4. Procesamiento:</strong> se calcula el mapa ELA y, de forma independiente, la imagen se convierte a RGB, se redimensiona a 224 × 224 px y se recomprime en JPEG con calidad 85 para el modelo.</div>
+        <div class="arrow">↓</div>
+        <div class="step"><strong>5. Resultado:</strong> la predicción se compara con el umbral configurado en <code>model/umbral_optimo.json</code>; la API devuelve el veredicto, las puntuaciones y el mapa ELA.</div>
+      </div>
+      <div class="note warning"><strong>Importante:</strong> ELA no produce un puntaje de anomalías ni participa en el veredicto. Solo se devuelve como una imagen PNG codificada en Base64.</div>
+    </section>
+
+    <section class="doc-card" id="componentes">
+      <div class="card-num">03</div>
+      <h2>3. Componentes y dependencias</h2>
+      <table class="doc-table">
+        <thead><tr><th>Componente</th><th>Responsabilidad</th></tr></thead>
+        <tbody>
+          <tr><td><code>app.py</code></td><td>Aplicación Flask, validación de archivos, límites de solicitudes, Turnstile y rutas HTTP.</td></tr>
+          <tr><td><code>analyzer.py</code></td><td>Carga el modelo y el umbral; prepara la imagen, genera ELA y construye la respuesta.</td></tr>
+          <tr><td>TensorFlow / Keras</td><td>Carga y ejecuta el modelo de clasificación.</td></tr>
+          <tr><td>Pillow y NumPy</td><td>Decodificación de imágenes, recomprensión JPEG, ELA y arreglos numéricos.</td></tr>
+          <tr><td>Flask-Limiter</td><td>Límite general de 60 solicitudes por minuto y, para <code>/analizar</code>, 5 por minuto y 50 por hora.</td></tr>
+          <tr><td>Requests y python-dotenv</td><td>Verificación remota de Turnstile y carga de configuración desde <code>.env</code>.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="doc-card" id="funciones">
+      <div class="card-num">04</div>
+      <h2>4. Funciones principales de <code>analyzer.py</code></h2>
+      <h3><code>cargar_umbral_decision() -&gt; float</code></h3>
+      <p>Lee <code>DECISION_THRESHOLD</code> desde <code>umbral_optimo.json</code> y valida que se encuentre entre 0 y 1.</p>
+      <h3><code>ela_analysis(img, quality=90) -&gt; str</code></h3>
+      <p>Para JPEG compara la imagen RGB con una versión recomprimida a calidad 90. Para PNG y WEBP primero crea una base JPEG a calidad 75 y la recomprime. Amplifica la diferencia, crea una imagen PNG y devuelve su contenido codificado en Base64.</p>
+      <h3><code>preprocess_image(img) -&gt; np.ndarray</code></h3>
+      <p>Convierte la imagen a RGB, la redimensiona a 224 × 224 px, la recomprime a JPEG con calidad 85 y devuelve un arreglo <code>float32</code> con dimensión de lote.</p>
+      <h3><code>clasificar_prediccion(prediction) -&gt; str</code></h3>
+      <p>Devuelve <code>"IA"</code> cuando la predicción es mayor o igual al umbral de decisión; en otro caso devuelve <code>"REAL"</code>.</p>
+      <h3><code>calcular_confianza(prediction, clasificacion) -&gt; float</code></h3>
+      <p>Para <code>IA</code> calcula <code>prediction × 100</code>; para <code>REAL</code>, <code>(1 - prediction) × 100</code>. El resultado se limita a 0–100 y se redondea a un decimal.</p>
+      <h3><code>analyze_image(img) -&gt; dict</code></h3>
+      <p>Orquesta el análisis y devuelve un diccionario con <code>prediccion</code>, <code>probabilidad_ia</code>, <code>confianza</code>, <code>umbral_ia</code> y <code>ela_imagen</code>.</p>
+      <pre><code>{
+  "prediccion": "IA | REAL",
+  "probabilidad_ia": 0.0,
+  "confianza": 0.0,
+  "umbral_ia": 0.0,
+  "ela_imagen": "imagen PNG en Base64"
+}</code></pre>
+    </section>
+
+    <section class="doc-card" id="api">
+      <div class="card-num">05</div>
+      <h2>5. Rutas y respuestas</h2>
+      <table class="doc-table">
+        <thead><tr><th>Ruta</th><th>Descripción</th></tr></thead>
+        <tbody>
+          <tr><td><code>GET /</code></td><td>Interfaz de carga y resultados.</td></tr>
+          <tr><td><code>POST /analizar</code></td><td>Recibe <code>imagen</code> y <code>cf-turnstile-response</code>. Puede responder 400, 403, 413, 429 o 500 si hay errores.</td></tr>
+          <tr><td><code>GET /como-funciona</code></td><td>Explicación orientada a usuarios.</td></tr>
+          <tr><td><code>GET /acerca</code> y <code>GET /privacidad</code></td><td>Páginas institucional y de privacidad.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="doc-card" id="seguridad">
+      <div class="card-num">06</div>
+      <h2>6. Seguridad y consideraciones operativas</h2>
+      <ul>
+        <li>Solo se aceptan extensiones JPG, JPEG, PNG y WEBP; el servidor también verifica el formato real con Pillow.</li>
+        <li>El tamaño máximo configurado es de 10 MB.</li>
+        <li>Las imágenes se procesan en memoria; la aplicación no implementa almacenamiento persistente de cargas.</li>
+        <li>El servicio depende de Cloudflare Turnstile. Para producción se deben configurar <code>TURNSTILE_SITE_KEY</code> y <code>TURNSTILE_SECRET_KEY</code>; opcionalmente <code>TURNSTILE_EXPECTED_HOSTNAME</code>.</li>
+        <li>El código actual no extrae ni muestra metadatos EXIF.</li>
+      </ul>
+    </section>
+  </main>
+  <footer>SIFIS · Documentación técnica del proyecto</footer>
+</body>
+</html>

@@ -53,7 +53,7 @@
         <span>Proceso de análisis forense</span>
       </div>
       <h1>¿Cómo detecta SIFIS imágenes generadas por IA?</h1>
-      <p>Un flujo de cuatro pasos aplica una red neuronal para clasificar y genera una visualización ELA independiente como apoyo interpretativo.</p>
+      <p>Un flujo de cuatro pasos valida y prepara la imagen, aplica un modelo de clasificación y genera una visualización ELA independiente como apoyo interpretativo.</p>
 
       <div class="cf-hero-stats">
         <div class="stat">
@@ -62,13 +62,13 @@
         </div>
         <div class="stat-div"></div>
         <div class="stat">
-          <span class="stat-num">70%</span>
+          <span class="stat-num">70 %</span>
           <span class="stat-label">Precisión mínima</span>
         </div>
         <div class="stat-div"></div>
         <div class="stat">
-          <span class="stat-num">120K</span>
-          <span class="stat-label">Imágenes de entrenamiento</span>
+          <span class="stat-num">10 MB</span>
+          <span class="stat-label">Tamaño máximo por imagen</span>
         </div>
       </div>
     </div>
@@ -92,11 +92,11 @@
           <div class="paso-cf-contenido">
             <div class="paso-cf-card">
               <h2>Carga y preprocesado de la imagen</h2>
-              <p>La imagen subida (JPG, PNG o WEBP) se valida, se redimensiona y se normaliza para asegurar condiciones uniformes antes de cualquier análisis, evitando que el tamaño o el formato original afecten el resultado.</p>
+              <p>La imagen subida (JPG, PNG o WEBP) se valida, se convierte a RGB y se redimensiona a 224 × 224 píxeles antes del análisis. Esto proporciona al modelo un formato de entrada uniforme.</p>
               <div class="tags-lista">
                 <span class="tag">Pillow</span>
                 <span class="tag">Validación de formato</span>
-                <span class="tag">Normalización</span>
+                <span class="tag">Conversión a RGB</span>
               </div>
             </div>
           </div>
@@ -127,12 +127,12 @@
           </div>
           <div class="paso-cf-contenido">
             <div class="paso-cf-card">
-              <h2>Clasificación con red neuronal EfficientNet-B0</h2>
-              <p>La imagen se procesa mediante una red neuronal convolucional basada en EfficientNet-B0. El mapa ELA se presenta por separado y no se utiliza como entrada ni modifica la clasificación.</p>
+              <h2>Clasificación con un modelo de red neuronal</h2>
+              <p>La imagen preparada se procesa mediante el modelo de clasificación del sistema. El mapa ELA se presenta por separado y no se utiliza como entrada ni modifica la clasificación.</p>
               <div class="tags-lista">
-                <span class="tag">EfficientNet-B0</span>
-                <span class="tag">Conjunto de datos CIFAKE</span>
-                <span class="tag">CNN</span>
+                <span class="tag">Modelo Keras</span>
+                <span class="tag">Clasificación binaria</span>
+                <span class="tag">Puntuación de IA</span>
               </div>
             </div>
           </div>
@@ -179,7 +179,7 @@
             <img src="/static/img/chip.png" alt="">
           </div>
           <h3>Redes neuronales convolucionales</h3>
-          <p>EfficientNet-B0 extrae características visuales profundas de la imagen, aprendiendo a distinguir patrones sutiles que diferencian rostros reales de rostros generados por modelos como GAN o difusión.</p>
+          <p>El modelo de clasificación procesa la imagen preparada y devuelve una puntuación asociada a la probabilidad de que sea contenido generado por IA.</p>
         </div>
 
         <div class="tecnica-card">
